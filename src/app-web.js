@@ -1,0 +1,295 @@
+// MELP Web Editörü — app-web.js
+// Electron bağımlılıkları kaldırıldı; tarayıcı File API + fetch kullanır
+'use strict';
+
+// ── Backend URL yapılandırması ─────────────────────────────────────────────
+// index.html'deki window.MELP_API_URL ayarından gelir (Railway, Render, vb.)
+const API_URL = (typeof window.MELP_API_URL !== 'undefined' && window.MELP_API_URL)
+  ? window.MELP_API_URL.replace(/\/$/, '')
+  : '';  // Boşsa aynı origin (local dev veya backend aynı sunucuda)
+
+// ── Yardımcı ───────────────────────────────────────────────────────────────
+function basename(p) {
+  return p ? (p.split('/').pop() || p.split('\\').pop() || p) : 'untitled.mlp';
+}
+
+// ── Durum ──────────────────────────────────────────────────────────────────
+const state = {
+  editor:     null,
+  modified:   false,
+  tabs:       [],
+  activeTab:  null,
+};
+
+// ── DOM ────────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+const editorEl   = $('editor-container');
+const tabsEl     = $('tabs');
+const statusText = $('status-text');
+const cursorInfo = $('cursor-info');
+const outputEl   = $('output-panel');
+
+// ── Editör başlat ──────────────────────────────────────────────────────────
+const DEFAULT_CONTENT =
+`-- Merhaba, MELP!
+function main()
+    print("Merhaba, Dünya!")
+end_function
+`;
+
+function initEditor() {
+  state.editor = MelpEditor.createEditor(editorEl, DEFAULT_CONTENT);
+
+  window.onEditorChange = () => {
+    markModified();
+    updateCursorInfo();
+  };
+
+  _createUntitledTab(DEFAULT_CONTENT);
+}
+
+let untitledCounter = 1;
+
+function _createUntitledTab(content = '') {
+  const label = `untitled-${untitledCounter++}.mlp`;
+  state.tabs.push({ path: null, label, content, modified: false });
+  state.activeTab = state.tabs.length - 1;
+  renderTabs();
+  setStatus(label);
+}
+
+// ── Tab yönetimi ────────────────────────────────────────────────────────────
+function openTab(filePath, content) {
+  if (filePath) {
+    const existing = state.tabs.findIndex(t => t.path === filePath);
+    if (existing >= 0) { activateTab(existing); return; }
+  }
+  const label = filePath ? basename(filePath) : `untitled-${untitledCounter++}.mlp`;
+  state.tabs.push({ path: filePath, label, content, modified: false });
+  activateTab(state.tabs.length - 1);
+  renderTabs();
+}
+
+function activateTab(idx) {
+  if (state.activeTab !== null && state.editor) {
+    state.tabs[state.activeTab].content = state.editor.getValue();
+  }
+  state.activeTab = idx;
+  const tab = state.tabs[idx];
+  state.editor.setValue(tab.content);
+  state.editor.focus();
+  renderTabs();
+  setStatus(tab.label);
+}
+
+function closeTab(idx) {
+  state.tabs.splice(idx, 1);
+  if (state.tabs.length === 0) {
+    state.activeTab = null;
+    state.editor.setValue('');
+  } else {
+    activateTab(Math.min(idx, state.tabs.length - 1));
+  }
+  renderTabs();
+}
+
+function markModified() {
+  if (state.activeTab === null) return;
+  state.tabs[state.activeTab].modified = true;
+  renderTabs();
+}
+
+function renderTabs() {
+  tabsEl.innerHTML = '';
+  state.tabs.forEach((tab, i) => {
+    const el = document.createElement('div');
+    el.className = 'tab' + (i === state.activeTab ? ' active' : '') + (tab.modified ? ' modified' : '');
+    el.innerHTML = `<span class="tab-label">${escHtml(tab.label)}${tab.modified ? ' ●' : ''}</span>`
+                 + `<span class="tab-close" data-i="${i}">×</span>`;
+    el.addEventListener('click', (e) => {
+      if (e.target.classList.contains('tab-close')) {
+        closeTab(parseInt(e.target.dataset.i, 10));
+      } else {
+        activateTab(i);
+      }
+    });
+    tabsEl.appendChild(el);
+  });
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Dosya işlemleri (File API) ─────────────────────────────────────────────
+function newFile() {
+  openTab(null, '');
+  setStatus('Yeni dosya');
+}
+
+function openFileFromDisk() {
+  const input = document.createElement('input');
+  input.type   = 'file';
+  input.accept = '.mlp,.mlpgui,.ll,.txt';
+  input.addEventListener('change', () => {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      openTab(file.name, ev.target.result);
+      setStatus('📄 ' + file.name);
+    };
+    reader.readAsText(file, 'utf-8');
+  });
+  input.click();
+}
+
+// Blob indirme — Ctrl+S
+function saveFile() {
+  const content = state.editor.getValue();
+  const label   = state.tabs[state.activeTab]?.label ?? 'untitled.mlp';
+  const blob    = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const url     = URL.createObjectURL(blob);
+  const a       = document.createElement('a');
+  a.href = url; a.download = label;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  if (state.activeTab !== null) {
+    state.tabs[state.activeTab].modified = false;
+    state.tabs[state.activeTab].content  = content;
+  }
+  renderTabs();
+  setStatus('✅ İndirildi: ' + label);
+}
+
+// ── Örnekler paneli ───────────────────────────────────────────────────────
+const EXAMPLES = [
+  {
+    label: 'Merhaba Dünya',
+    code: `function main()\n    print("Merhaba, Dünya!")\nend_function\n`,
+  },
+  {
+    label: 'Fibonacci',
+    code: `function fib(n as numeric) as numeric\n    if n <= 1 then\n        return n\n    end_if\n    return fib(n - 1) + fib(n - 2)\nend_function\n\nfunction main()\n    for i = 0 to 10\n        print(fib(i))\n    end_for\nend_function\n`,
+  },
+  {
+    label: 'Döngüler',
+    code: `function main()\n    -- while örneği\n    i = 0\n    while i < 5\n        print(i)\n        i = i + 1\n    end_while\n\n    -- for örneği\n    for j = 1 to 5\n        print(j * j)\n    end_for\nend_function\n`,
+  },
+  {
+    label: 'Struct',
+    code: `struct Nokta\n    x as numeric\n    y as numeric\nend_struct\n\nfunction Nokta.topla(self as Nokta, diger as Nokta) as Nokta\n    return Nokta{x: self.x + diger.x, y: self.y + diger.y}\nend_function\n\nfunction main()\n    a = Nokta{x: 3, y: 4}\n    b = Nokta{x: 1, y: 2}\n    c = a.topla(b)\n    print(c.x)\n    print(c.y)\nend_function\n`,
+  },
+  {
+    label: 'Enum + Match',
+    code: `enum Renk\n    Kirmizi\n    Yesil\n    Mavi\nend_enum\n\nfunction main()\n    r = Renk.Kirmizi\n    match r\n        Renk.Kirmizi => print("kırmızı")\n        Renk.Yesil   => print("yeşil")\n        Renk.Mavi    => print("mavi")\n    end_match\nend_function\n`,
+  },
+  {
+    label: 'Try / Hata',
+    code: `function bolme(a as numeric, b as numeric) as numeric\n    if b == 0 then\n        panic("sıfıra bölme!")\n    end_if\n    return a / b\nend_function\n\nfunction main()\n    try\n        r = bolme(10, 0)\n        print(r)\n    end_try\nend_function\n`,
+  },
+];
+
+function loadExamplesPanel() {
+  const container = $('examples-list');
+  if (!container) return;
+  EXAMPLES.forEach(ex => {
+    const el = document.createElement('div');
+    el.className  = 'tree-file';
+    el.textContent = ex.label;
+    el.title = ex.label + '.mlp';
+    el.addEventListener('click', () => {
+      openTab(ex.label + '.mlp', ex.code);
+    });
+    container.appendChild(el);
+  });
+}
+
+// ── Derleme & çalıştırma ───────────────────────────────────────────────────
+async function compile(andRun = false) {
+  const code     = state.editor.getValue();
+  const endpoint = API_URL + '/api/compile';
+
+  showOutput('⏳ ' + (andRun ? 'Derleniyor ve çalıştırılıyor...' : 'Derleniyor...') + '\n');
+  setStatus('⏳ Çalışıyor...');
+
+  let res, json;
+  try {
+    res  = await fetch(endpoint, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ code, run: andRun }),
+    });
+    json = await res.json();
+  } catch (err) {
+    appendOutput('❌ Backend bağlantı hatası: ' + err.message + '\n');
+    appendOutput('\nBackend URL: ' + (endpoint || '(aynı origin)') + '\n');
+    appendOutput('index.html içindeki window.MELP_API_URL değerini kontrol edin.\n');
+    setStatus('❌ Bağlantı hatası');
+    return;
+  }
+
+  if (json.stderr) appendOutput(json.stderr + '\n');
+  if (json.stdout) appendOutput(json.stdout);
+  if (!json.stderr && !json.stdout) appendOutput('(çıktı yok)\n');
+
+  const ok = json.exitCode === 0;
+  setStatus(ok ? '✅ Başarılı' : '❌ Derleme hatası');
+}
+
+// ── Çıktı paneli ───────────────────────────────────────────────────────────
+function showOutput(text) {
+  outputEl.classList.remove('hidden');
+  $('output-content').textContent = text;
+}
+
+function appendOutput(text) {
+  outputEl.classList.remove('hidden');
+  $('output-content').textContent += text;
+}
+
+// ── Status bar ─────────────────────────────────────────────────────────────
+function setStatus(msg) {
+  statusText.textContent = msg;
+}
+
+function updateCursorInfo() {
+  if (!state.editor) return;
+  const pos  = state.editor.view.state.selection.main.head;
+  const line = state.editor.view.state.doc.lineAt(pos);
+  cursorInfo.textContent = `Sat ${line.number}, Sut ${pos - line.from + 1}`;
+}
+
+// ── Klavye kısayolları ─────────────────────────────────────────────────────
+document.addEventListener('keydown', async (e) => {
+  const ctrl = e.ctrlKey || e.metaKey;
+  if (ctrl && e.key === 's')  { e.preventDefault(); saveFile(); }
+  if (ctrl && e.key === 'n')  { e.preventDefault(); newFile(); }
+  if (ctrl && e.key === 'o')  { e.preventDefault(); openFileFromDisk(); }
+  if (e.key  === 'F5')        { e.preventDefault(); await compile(true); }
+  if (ctrl && e.key === 'b')  { e.preventDefault(); await compile(false); }
+  if (e.key  === 'Escape')    { $('output-panel').classList.add('hidden'); }
+});
+
+// ── Buton bağlamaları ──────────────────────────────────────────────────────
+$('btn-new').addEventListener('click', newFile);
+$('btn-open').addEventListener('click', openFileFromDisk);
+$('btn-save').addEventListener('click', saveFile);
+$('btn-compile').addEventListener('click', () => compile(false));
+$('btn-run').addEventListener('click', () => compile(true));
+$('btn-close-output').addEventListener('click', () => $('output-panel').classList.add('hidden'));
+$('theme-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('light');
+  $('theme-toggle').textContent = document.body.classList.contains('light') ? '🌙 Dark' : '☀ Light';
+});
+
+// ── Başlangıç ─────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  initEditor();
+  loadExamplesPanel();
+  setStatus('MELP IDE — Hazır');
+  updateCursorInfo();
+});

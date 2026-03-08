@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MELP IDE — Online Editör</title>
+  <script src="editor.bundle.js"></script>
+
+  <!-- ── Backend URL yapılandırması ──────────────────────────────────────── -->
+  <!-- Railway / Render / Fly.io URL'nizi buraya girin.                      -->
+  <!-- Örnek: window.MELP_API_URL = 'https://melp-api.up.railway.app';      -->
+  <script>window.MELP_API_URL = 'https://melp-compile-server-production.up.railway.app';</script>
+
+  <style>
+    :root {
+      --bg:             #1e1e1e;
+      --fg:             #abb2bf;
+      --titlebar-bg:    #21252b;
+      --sidebar-bg:     #21252b;
+      --sidebar-fg:     #abb2bf;
+      --sidebar-hdr-fg: #9da5b4;
+      --tabs-bg:        #282c34;
+      --tab-fg:         #636d83;
+      --tab-active-bg:  #1e1e1e;
+      --tab-active-fg:  #d7dae0;
+      --statusbar-bg:   #007acc;
+      --statusbar-fg:   #fff;
+      --hover-bg:       #2c313c;
+      --border:         #181a1f;
+      --accent:         #528bff;
+      --modified:       #e5c07b;
+      --output-bg:      #151718;
+      --btn-bg:         rgba(255,255,255,0.06);
+      --btn-border:     rgba(255,255,255,0.12);
+      --btn-hover:      rgba(255,255,255,0.12);
+    }
+    body.light {
+      --bg:             #ffffff;
+      --fg:             #383a42;
+      --titlebar-bg:    #eaebeb;
+      --sidebar-bg:     #f0f0f0;
+      --sidebar-fg:     #383a42;
+      --sidebar-hdr-fg: #696c77;
+      --tabs-bg:        #e5e5e5;
+      --tab-fg:         #696c77;
+      --tab-active-bg:  #ffffff;
+      --tab-active-fg:  #383a42;
+      --statusbar-bg:   #007acc;
+      --output-bg:      #f8f8f8;
+      --hover-bg:       #e8e8e8;
+      --border:         #ddd;
+      --btn-bg:         rgba(0,0,0,0.06);
+      --btn-border:     rgba(0,0,0,0.15);
+      --btn-hover:      rgba(0,0,0,0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      display: flex; flex-direction: column; height: 100vh;
+      background: var(--bg); color: var(--fg);
+      font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px;
+      overflow: hidden;
+    }
+
+    /* ── Titlebar ───────────────────────────────────────────────────────── */
+    #titlebar {
+      height: 36px; background: var(--titlebar-bg);
+      display: flex; align-items: center; padding: 0 10px; gap: 4px;
+      user-select: none; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    #titlebar .tb-logo { font-weight: bold; font-size: 13px; color: #528bff; margin-right: 8px; }
+    .tb-btn {
+      background: var(--btn-bg); border: 1px solid var(--btn-border);
+      color: var(--fg); padding: 3px 10px; border-radius: 4px;
+      cursor: pointer; font-size: 11px; font-family: monospace;
+    }
+    .tb-btn:hover { background: var(--btn-hover); }
+    .tb-btn.primary { background: #007acc; color: #fff; border-color: #007acc; }
+    .tb-btn.primary:hover { background: #0069ab; }
+    .tb-btn.run     { background: #3d8b40; color: #fff; border-color: #3d8b40; }
+    .tb-btn.run:hover { background: #2e7d32; }
+    .tb-sep { flex: 1; }
+
+    /* ── Ana içerik ─────────────────────────────────────────────────────── */
+    #workspace { display: flex; flex: 1; overflow: hidden; }
+
+    /* ── Sidebar (Örnekler) ─────────────────────────────────────────────── */
+    #sidebar {
+      width: 200px; min-width: 120px; max-width: 320px;
+      background: var(--sidebar-bg); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;
+    }
+    #sidebar-header {
+      padding: 8px 12px; font-size: 10px; text-transform: uppercase;
+      letter-spacing: 1.2px; color: var(--sidebar-hdr-fg);
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    #examples-list { flex: 1; overflow-y: auto; padding: 4px 0; }
+    .tree-file {
+      padding: 5px 14px; cursor: pointer; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis; color: var(--sidebar-fg);
+      font-size: 12px;
+    }
+    .tree-file:hover { background: var(--hover-bg); }
+
+    /* ── Editör alanı ───────────────────────────────────────────────────── */
+    #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* ── Sekmeler ───────────────────────────────────────────────────────── */
+    #tabs {
+      height: 35px; background: var(--tabs-bg);
+      display: flex; align-items: flex-end; overflow-x: auto; flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab {
+      padding: 6px 14px 5px; font-size: 12px; cursor: pointer;
+      border-right: 1px solid var(--border); white-space: nowrap;
+      color: var(--tab-fg); display: flex; align-items: center; gap: 5px;
+    }
+    .tab.active {
+      background: var(--tab-active-bg); color: var(--tab-active-fg);
+      border-top: 2px solid var(--accent);
+    }
+    .tab.modified .tab-label::after { content: ' ●'; color: var(--modified); }
+    .tab-close { opacity: 0.5; font-size: 14px; line-height: 1; }
+    .tab-close:hover { opacity: 1; }
+
+    /* ── CodeMirror ─────────────────────────────────────────────────────── */
+    #editor-container { flex: 1; overflow: hidden; position: relative; }
+    #editor-container .cm-editor  { height: 100%; }
+    #editor-container .cm-scroller { overflow: auto; }
+
+    /* ── Çıktı paneli ───────────────────────────────────────────────────── */
+    #output-panel {
+      height: 220px; background: var(--output-bg); border-top: 2px solid var(--accent);
+      display: flex; flex-direction: column; flex-shrink: 0;
+    }
+    #output-panel.hidden { display: none; }
+    #output-toolbar {
+      height: 28px; background: var(--titlebar-bg);
+      display: flex; align-items: center; padding: 0 10px; gap: 8px; flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    #output-toolbar span { font-size: 11px; color: var(--sidebar-hdr-fg); text-transform: uppercase; letter-spacing: 0.8px; }
+    #output-content {
+      flex: 1; overflow-y: auto; padding: 8px 12px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 12px;
+      white-space: pre-wrap; color: var(--fg); line-height: 1.5;
+    }
+
+    /* ── Status bar ─────────────────────────────────────────────────────── */
+    #statusbar {
+      height: 24px; background: var(--statusbar-bg); flex-shrink: 0;
+      display: flex; align-items: center; padding: 0 12px; gap: 14px;
+      font-size: 11px; color: var(--statusbar-fg);
+    }
+    #statusbar .sb-sep { flex: 1; }
+    #theme-toggle {
+      background: transparent; border: none; color: var(--statusbar-fg);
+      cursor: pointer; font-size: 11px; padding: 0 4px;
+    }
+    #theme-toggle:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <!-- ── TITLEBAR ────────────────────────────────────────────────────────── -->
+  <div id="titlebar">
+    <span class="tb-logo">◈ MELP</span>
+    <button class="tb-btn" id="btn-new"     title="Yeni (Ctrl+N)">+ Yeni</button>
+    <button class="tb-btn" id="btn-open"    title="Dosya Aç (Ctrl+O)">📄 Aç</button>
+    <button class="tb-btn" id="btn-save"    title="İndir (Ctrl+S)">💾 Kaydet</button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn primary" id="btn-compile" title="Derle (Ctrl+B)">⚙ Derle</button>
+    <button class="tb-btn run"     id="btn-run"     title="Çalıştır (F5)">▶ Çalıştır</button>
+  </div>
+
+  <!-- ── ANA ALAN ────────────────────────────────────────────────────────── -->
+  <div id="workspace">
+
+    <!-- Örnekler -->
+    <div id="sidebar">
+      <div id="sidebar-header">Örnekler</div>
+      <div id="examples-list"></div>
+    </div>
+
+    <!-- Editör + Çıktı -->
+    <div id="main">
+      <div id="tabs"></div>
+      <div id="editor-container"></div>
+
+      <!-- Çıktı paneli (başlangıçta gizli) -->
+      <div id="output-panel" class="hidden">
+        <div id="output-toolbar">
+          <span>Çıktı</span>
+          <div style="flex:1"></div>
+          <button id="btn-close-output" style="background:transparent;border:none;color:var(--sidebar-hdr-fg);cursor:pointer;font-size:14px;">×</button>
+        </div>
+        <pre id="output-content"></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STATUS BAR ──────────────────────────────────────────────────────── -->
+  <div id="statusbar">
+    <span id="status-text">Hazır</span>
+    <span class="sb-sep"></span>
+    <span id="cursor-info">Sat 1, Sut 1</span>
+    <span>MELP</span>
+    <span>UTF-8</span>
+    <button id="theme-toggle">☀ Light</button>
+  </div>
+
+  <script src="app-web.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "name": "melp-web-editor",
+  "version": "1.0.0",
+  "description": "MELP Dili — Tarayıcı Tabanlı IDE (DartPad benzeri)",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "dev":   "node build.js --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.2"
+  },
+  "dependencies": {
+    "@codemirror/autocomplete":   "^6.18.6",
+    "@codemirror/commands":       "^6.8.0",
+    "@codemirror/language":       "^6.10.9",
+    "@codemirror/lint":           "^6.8.5",
+    "@codemirror/search":         "^6.5.10",
+    "@codemirror/state":          "^6.5.2",
+    "@codemirror/theme-one-dark": "^6.1.3",
+    "@codemirror/view":           "^6.36.5",
+    "@lezer/common":              "^1.2.3",
+    "@lezer/highlight":           "^1.2.1",
+    "@lezer/lr":                  "^1.4.2",
+    "codemirror":                 "^6.0.2"
+  }
+}
