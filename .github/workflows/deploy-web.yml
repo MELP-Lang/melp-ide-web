@@ -3,9 +3,6 @@ name: Deploy MELP Web Editörü → GitHub Pages
 on:
   push:
     branches: [main]
-    paths:
-      - 'editors/web/**'
-      - '.github/workflows/deploy-web.yml'
   workflow_dispatch:   # elle tetiklenebilir
 
 permissions:
@@ -33,14 +30,12 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: editors/web/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Bağımlılıkları yükle
-        working-directory: editors/web
         run: npm ci
 
       - name: Derle (esbuild)
-        working-directory: editors/web
         run: npm run build
 
       - name: GitHub Pages hazırla
@@ -49,7 +44,7 @@ jobs:
       - name: Artifact yükle
         uses: actions/upload-pages-artifact@v3
         with:
-          path: editors/web/dist
+          path: dist
 
       - name: GitHub Pages'e deploy et
         id: deploy
