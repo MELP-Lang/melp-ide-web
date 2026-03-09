@@ -199,11 +199,13 @@ function renderTabs() {
   state.tabs.forEach((tab, i) => {
     const el = document.createElement('div');
     el.className = 'tab' + (i === state.activeTab ? ' active' : '') + (tab.modified ? ' modified' : '');
-    el.innerHTML = `<span class="tab-label">${escHtml(tab.label)}${tab.modified ? ' ●' : ''}</span>`
+    el.innerHTML = `<span class="tab-label">${escHtml(tab.label)}</span>`
                  + `<span class="tab-close" data-i="${i}">×</span>`;
     el.addEventListener('click', (e) => {
-      if (e.target.classList.contains('tab-close')) {
-        closeTab(parseInt(e.target.dataset.i, 10));
+      const closeBtn = e.target.closest('.tab-close');
+      if (closeBtn) {
+        e.stopPropagation();
+        closeTab(parseInt(closeBtn.dataset.i, 10));
       } else {
         activateTab(i);
       }
