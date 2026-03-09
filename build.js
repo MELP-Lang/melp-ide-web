@@ -17,6 +17,16 @@ function copy(src, dst) {
 function copyStatics() {
   copy('index.html',      'index.html');
   copy('src/app-web.js',  'app-web.js');
+  // WASM dosyalarını public/wasm/ → dist/wasm/ kopyala
+  const wasmSrc = path.join(__dirname, 'public/wasm');
+  const wasmDst = path.join(__dirname, 'dist/wasm');
+  if (fs.existsSync(wasmSrc)) {
+    fs.mkdirSync(wasmDst, { recursive: true });
+    for (const f of fs.readdirSync(wasmSrc)) {
+      fs.copyFileSync(path.join(wasmSrc, f), path.join(wasmDst, f));
+    }
+    console.log('✅ dist/wasm/ kopyalandı');
+  }
   console.log('✅ dist/index.html + dist/app-web.js kopyalandı');
 }
 
