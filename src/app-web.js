@@ -8,6 +8,23 @@ const API_URL = (typeof window.MELP_API_URL !== 'undefined' && window.MELP_API_U
   ? window.MELP_API_URL.replace(/\/$/, '')
   : '';  // Boşsa aynı origin (local dev veya backend aynı sunucuda)
 
+// ── Backend adaptörü ───────────────────────────────────────────────────────
+// Railway modu: fetch → POST /api/compile
+// WASM modu (gelecek): melp_compiler.wasm tarayıcıda çalıştırır
+// Geçiş için sadece bu nesneyi değiştirmek yeterli.
+const backend = {
+  async compile(code, run) {
+    // WASM hazır olduğunda burası değişecek:
+    // return wasmBackend.compile(code, run);
+    const res  = await fetch(API_URL + '/api/compile', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ code, run }),
+    });
+    return res.json();  // { stdout, stderr, exitCode }
+  }
+};
+
 // ── Yardımcı ───────────────────────────────────────────────────────────────
 function basename(p) {
   return p ? (p.split('/').pop() || p.split('\\').pop() || p) : 'untitled.mlp';
@@ -210,23 +227,17 @@ function loadExamplesPanel() {
 
 // ── Derleme & çalıştırma ───────────────────────────────────────────────────
 async function compile(andRun = false) {
-  const code     = state.editor.getValue();
-  const endpoint = API_URL + '/api/compile';
+  const code = state.editor.getValue();
 
   showOutput('⏳ ' + (andRun ? 'Derleniyor ve çalıştırılıyor...' : 'Derleniyor...') + '\n');
   setStatus('⏳ Çalışıyor...');
 
-  let res, json;
+  let json;
   try {
-    res  = await fetch(endpoint, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ code, run: andRun }),
-    });
-    json = await res.json();
+    json = await backend.compile(code, andRun);
   } catch (err) {
     appendOutput('❌ Backend bağlantı hatası: ' + err.message + '\n');
-    appendOutput('\nBackend URL: ' + (endpoint || '(aynı origin)') + '\n');
+    appendOutput('\nBackend URL: ' + (API_URL || '(aynı origin)') + '\n');
     appendOutput('index.html içindeki window.MELP_API_URL değerini kontrol edin.\n');
     setStatus('❌ Bağlantı hatası');
     return;
