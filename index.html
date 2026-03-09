@@ -147,6 +147,50 @@
       --btn-border:     rgba(255,255,255,0.14);
       --btn-hover:      rgba(255,255,255,0.1);
     }
+    body.pink {
+      --bg:             #fff0f5;
+      --fg:             #4a2040;
+      --titlebar-bg:    #fce4ec;
+      --sidebar-bg:     #fce4ec;
+      --sidebar-fg:     #4a2040;
+      --sidebar-hdr-fg: #ad1464;
+      --tabs-bg:        #fce4ec;
+      --tab-fg:         #ad1464;
+      --tab-active-bg:  #fff0f5;
+      --tab-active-fg:  #4a2040;
+      --statusbar-bg:   #e91e8c;
+      --statusbar-fg:   #fff;
+      --hover-bg:       #f8bbd0;
+      --border:         #f48fb1;
+      --accent:         #c2185b;
+      --modified:       #ff6f00;
+      --output-bg:      #fbe9f1;
+      --btn-bg:         rgba(195,24,91,0.08);
+      --btn-border:     rgba(195,24,91,0.2);
+      --btn-hover:      rgba(195,24,91,0.15);
+    }
+    body.blue-kids {
+      --bg:             #e8f4fd;
+      --fg:             #1a3a5c;
+      --titlebar-bg:    #bbdefb;
+      --sidebar-bg:     #bbdefb;
+      --sidebar-fg:     #1a3a5c;
+      --sidebar-hdr-fg: #1565c0;
+      --tabs-bg:        #bbdefb;
+      --tab-fg:         #1565c0;
+      --tab-active-bg:  #e8f4fd;
+      --tab-active-fg:  #1a3a5c;
+      --statusbar-bg:   #1565c0;
+      --statusbar-fg:   #fff;
+      --hover-bg:       #90caf9;
+      --border:         #64b5f6;
+      --accent:         #0277bd;
+      --modified:       #f57c00;
+      --output-bg:      #dceefa;
+      --btn-bg:         rgba(2,119,189,0.08);
+      --btn-border:     rgba(2,119,189,0.2);
+      --btn-hover:      rgba(2,119,189,0.15);
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       display: flex; flex-direction: column; height: 100vh;
@@ -172,7 +216,9 @@
     .tb-btn.primary:hover { background: #0069ab; }
     .tb-btn.run     { background: #3d8b40; color: #fff; border-color: #3d8b40; }
     .tb-btn.run:hover { background: #2e7d32; }
+    .tb-btn.active  { border-color: var(--accent); color: var(--accent); font-weight: bold; }
     .tb-sep { flex: 1; }
+    #font-size-group { display: flex; gap: 2px; }
 
     /* ── Ana içerik ─────────────────────────────────────────────────────── */
     #workspace { display: flex; flex: 1; overflow: hidden; }
@@ -292,7 +338,15 @@
         <div class="palette-item" data-theme="monokai"><span class="palette-swatch" style="background:#272822;border-color:#f92672"></span>Monokai</div>
         <div class="palette-item" data-theme="nord"><span class="palette-swatch" style="background:#2e3440;border-color:#88c0d0"></span>Nord</div>
         <div class="palette-item" data-theme="solarized"><span class="palette-swatch" style="background:#002b36;border-color:#268bd2"></span>Solarized</div>
+        <div class="palette-item" data-theme="pink"><span class="palette-swatch" style="background:#fff0f5;border-color:#c2185b"></span>🌸 Pembe</div>
+        <div class="palette-item" data-theme="blue-kids"><span class="palette-swatch" style="background:#e8f4fd;border-color:#0277bd"></span>🔵 Mavi Çocuk</div>
       </div>
+    </div>
+    <div id="font-size-group" title="Yazı Boyutu">
+      <button class="tb-btn font-size-btn" data-size="S"  title="Küçük (12px)">S</button>
+      <button class="tb-btn font-size-btn" data-size="M"  title="Orta (14px)">M</button>
+      <button class="tb-btn font-size-btn" data-size="L"  title="Büyük (17px)">L</button>
+      <button class="tb-btn font-size-btn" data-size="XL" title="Çok Büyük (21px)">XL</button>
     </div>
     <div class="tb-sep"></div>
     <button class="tb-btn primary" id="btn-compile" title="Derle (Ctrl+B)">⚙ Derle</button>

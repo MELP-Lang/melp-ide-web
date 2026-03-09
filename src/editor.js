@@ -12,7 +12,8 @@ import { autocompletion, completionKeymap,
 import { lintKeymap, linter, lintGutter }   from '@codemirror/lint';
 import { oneDark }                            from '@codemirror/theme-one-dark';
 import { indentOnInput, bracketMatching,
-         foldGutter, foldKeymap }            from '@codemirror/language';
+         foldGutter, foldKeymap,
+         syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language';
 import { melpLanguageExtension,
          melpCompletionSource }              from './melp-lang.js';
 
@@ -20,8 +21,6 @@ import { melpLanguageExtension,
 const melpTheme = EditorView.theme({
   '&': {
     height: '100%',
-    fontSize: '14px',
-    fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace",
     background: '#1e1e1e',
   },
   '.cm-content': {
@@ -90,6 +89,172 @@ const melpTheme = EditorView.theme({
   },
 });
 
+// ── Sabit font ailesi eklentisi ───────────────────────────────────────────
+const fontFamilyExt = EditorView.theme({
+  '&': { fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace" },
+});
+
+// ── Palet başına CodeMirror teması ──────────────────────────────────────────
+const cmLightTheme = EditorView.theme({
+  '&': { height: '100%', background: '#fafafa', color: '#383a42' },
+  '.cm-content': { caretColor: '#007acc', minHeight: '100%' },
+  '.cm-gutters': { background: '#f0f0f0', color: '#696c77', border: 'none', borderRight: '1px solid #ddd' },
+  '.cm-activeLineGutter': { background: '#d8e6f5' },
+  '.cm-activeLine': { background: '#edf4ff' },
+  '.cm-selectionBackground, ::selection': { background: '#b3d4f5 !important' },
+  '.cm-cursor': { borderLeftColor: '#007acc' },
+  '.cm-matchingBracket': { background: '#c8d9eb', color: '#000 !important' },
+  '.cm-tooltip.cm-tooltip-autocomplete': { background: '#fff', border: '1px solid #ddd', color: '#383a42' },
+  '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': { background: '#e8f0f8', color: '#000' },
+  '.cm-panel': { background: '#f0f0f0', borderTop: '1px solid #ddd', color: '#383a42', padding: '6px 10px' },
+  '.cm-panel input': { background: '#fff', border: '1px solid #ccc', borderRadius: '3px', color: '#383a42', padding: '2px 6px', outline: 'none', marginRight: '4px' },
+  '.cm-panel input:focus': { borderColor: '#007acc' },
+  '.cm-panel button': { background: '#e8e8e8', border: '1px solid #ccc', borderRadius: '3px', color: '#383a42', cursor: 'pointer', padding: '2px 8px', marginRight: '4px' },
+  '.cm-panel button:hover': { background: '#d4d4d4' },
+  '.cm-panel label': { color: '#696c77', marginRight: '8px', fontSize: '12px' },
+  '.cm-panel .cm-panel-close': { float: 'right', cursor: 'pointer' },
+}, { dark: false });
+
+const cmDraculaTheme = EditorView.theme({
+  '&': { height: '100%', background: '#282a36', color: '#f8f8f2' },
+  '.cm-content': { caretColor: '#f8f8f0', minHeight: '100%' },
+  '.cm-gutters': { background: '#282a36', color: '#6272a4', border: 'none', borderRight: '1px solid #191a21' },
+  '.cm-activeLineGutter': { background: '#44475a' },
+  '.cm-activeLine': { background: '#44475a' },
+  '.cm-selectionBackground, ::selection': { background: '#44475a !important' },
+  '.cm-cursor': { borderLeftColor: '#f8f8f0' },
+  '.cm-matchingBracket': { background: '#6272a4', color: '#fff !important' },
+  '.cm-tooltip.cm-tooltip-autocomplete': { background: '#21222c', border: '1px solid #191a21', color: '#f8f8f2' },
+  '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': { background: '#44475a', color: '#fff' },
+  '.cm-panel': { background: '#21222c', borderTop: '1px solid #191a21', color: '#f8f8f2', padding: '6px 10px' },
+  '.cm-panel input': { background: '#282a36', border: '1px solid #44475a', borderRadius: '3px', color: '#f8f8f2', padding: '2px 6px', outline: 'none', marginRight: '4px' },
+  '.cm-panel input:focus': { borderColor: '#bd93f9' },
+  '.cm-panel button': { background: '#44475a', border: '1px solid #6272a4', borderRadius: '3px', color: '#f8f8f2', cursor: 'pointer', padding: '2px 8px', marginRight: '4px' },
+  '.cm-panel button:hover': { background: '#6272a4' },
+  '.cm-panel label': { color: '#6272a4', marginRight: '8px', fontSize: '12px' },
+  '.cm-panel .cm-panel-close': { float: 'right', cursor: 'pointer' },
+});
+
+const cmMonokaiTheme = EditorView.theme({
+  '&': { height: '100%', background: '#272822', color: '#f8f8f2' },
+  '.cm-content': { caretColor: '#f8f8f0', minHeight: '100%' },
+  '.cm-gutters': { background: '#272822', color: '#75715e', border: 'none', borderRight: '1px solid #1a1b17' },
+  '.cm-activeLineGutter': { background: '#3e3d32' },
+  '.cm-activeLine': { background: '#3e3d32' },
+  '.cm-selectionBackground, ::selection': { background: '#49483e !important' },
+  '.cm-cursor': { borderLeftColor: '#f8f8f0' },
+  '.cm-matchingBracket': { background: '#49483e', color: '#fff !important' },
+  '.cm-tooltip.cm-tooltip-autocomplete': { background: '#1e1f1c', border: '1px solid #1a1b17', color: '#f8f8f2' },
+  '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': { background: '#3e3d32', color: '#fff' },
+  '.cm-panel': { background: '#1e1f1c', borderTop: '1px solid #1a1b17', color: '#f8f8f2', padding: '6px 10px' },
+  '.cm-panel input': { background: '#272822', border: '1px solid #49483e', borderRadius: '3px', color: '#f8f8f2', padding: '2px 6px', outline: 'none', marginRight: '4px' },
+  '.cm-panel input:focus': { borderColor: '#a6e22e' },
+  '.cm-panel button': { background: '#3e3d32', border: '1px solid #75715e', borderRadius: '3px', color: '#f8f8f2', cursor: 'pointer', padding: '2px 8px', marginRight: '4px' },
+  '.cm-panel button:hover': { background: '#75715e' },
+  '.cm-panel label': { color: '#75715e', marginRight: '8px', fontSize: '12px' },
+  '.cm-panel .cm-panel-close': { float: 'right', cursor: 'pointer' },
+});
+
+const cmNordTheme = EditorView.theme({
+  '&': { height: '100%', background: '#2e3440', color: '#d8dee9' },
+  '.cm-content': { caretColor: '#eceff4', minHeight: '100%' },
+  '.cm-gutters': { background: '#2e3440', color: '#4c566a', border: 'none', borderRight: '1px solid #1c2028' },
+  '.cm-activeLineGutter': { background: '#3b4252' },
+  '.cm-activeLine': { background: '#3b4252' },
+  '.cm-selectionBackground, ::selection': { background: '#434c5e !important' },
+  '.cm-cursor': { borderLeftColor: '#d8dee9' },
+  '.cm-matchingBracket': { background: '#4c566a', color: '#eceff4 !important' },
+  '.cm-tooltip.cm-tooltip-autocomplete': { background: '#242933', border: '1px solid #1c2028', color: '#d8dee9' },
+  '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': { background: '#3b4252', color: '#eceff4' },
+  '.cm-panel': { background: '#242933', borderTop: '1px solid #1c2028', color: '#d8dee9', padding: '6px 10px' },
+  '.cm-panel input': { background: '#2e3440', border: '1px solid #434c5e', borderRadius: '3px', color: '#d8dee9', padding: '2px 6px', outline: 'none', marginRight: '4px' },
+  '.cm-panel input:focus': { borderColor: '#88c0d0' },
+  '.cm-panel button': { background: '#3b4252', border: '1px solid #4c566a', borderRadius: '3px', color: '#d8dee9', cursor: 'pointer', padding: '2px 8px', marginRight: '4px' },
+  '.cm-panel button:hover': { background: '#4c566a' },
+  '.cm-panel label': { color: '#4c566a', marginRight: '8px', fontSize: '12px' },
+  '.cm-panel .cm-panel-close': { float: 'right', cursor: 'pointer' },
+});
+
+const cmSolarizedTheme = EditorView.theme({
+  '&': { height: '100%', background: '#002b36', color: '#839496' },
+  '.cm-content': { caretColor: '#839496', minHeight: '100%' },
+  '.cm-gutters': { background: '#002b36', color: '#586e75', border: 'none', borderRight: '1px solid #00212b' },
+  '.cm-activeLineGutter': { background: '#073642' },
+  '.cm-activeLine': { background: '#073642' },
+  '.cm-selectionBackground, ::selection': { background: '#0d4a5a !important' },
+  '.cm-cursor': { borderLeftColor: '#819090' },
+  '.cm-matchingBracket': { background: '#073642', color: '#eee8d5 !important' },
+  '.cm-tooltip.cm-tooltip-autocomplete': { background: '#001e26', border: '1px solid #00212b', color: '#839496' },
+  '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': { background: '#073642', color: '#eee8d5' },
+  '.cm-panel': { background: '#001e26', borderTop: '1px solid #00212b', color: '#839496', padding: '6px 10px' },
+  '.cm-panel input': { background: '#002b36', border: '1px solid #073642', borderRadius: '3px', color: '#839496', padding: '2px 6px', outline: 'none', marginRight: '4px' },
+  '.cm-panel input:focus': { borderColor: '#268bd2' },
+  '.cm-panel button': { background: '#073642', border: '1px solid #586e75', borderRadius: '3px', color: '#839496', cursor: 'pointer', padding: '2px 8px', marginRight: '4px' },
+  '.cm-panel button:hover': { background: '#0d4a5a' },
+  '.cm-panel label': { color: '#586e75', marginRight: '8px', fontSize: '12px' },
+  '.cm-panel .cm-panel-close': { float: 'right', cursor: 'pointer' },
+});
+
+const cmPinkTheme = EditorView.theme({
+  '&': { height: '100%', background: '#fff0f5', color: '#4a2040' },
+  '.cm-content': { caretColor: '#c2185b', minHeight: '100%' },
+  '.cm-gutters': { background: '#fce4ec', color: '#ad1464', border: 'none', borderRight: '1px solid #f8bbd0' },
+  '.cm-activeLineGutter': { background: '#f8bbd0' },
+  '.cm-activeLine': { background: '#fce4ec' },
+  '.cm-selectionBackground, ::selection': { background: '#f48fb1 !important' },
+  '.cm-cursor': { borderLeftColor: '#c2185b' },
+  '.cm-matchingBracket': { background: '#f8bbd0', color: '#4a2040 !important' },
+  '.cm-tooltip.cm-tooltip-autocomplete': { background: '#fce4ec', border: '1px solid #f8bbd0', color: '#4a2040' },
+  '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': { background: '#f48fb1', color: '#fff' },
+  '.cm-panel': { background: '#fce4ec', borderTop: '1px solid #f8bbd0', color: '#4a2040', padding: '6px 10px' },
+  '.cm-panel input': { background: '#fff0f5', border: '1px solid #f48fb1', borderRadius: '3px', color: '#4a2040', padding: '2px 6px', outline: 'none', marginRight: '4px' },
+  '.cm-panel input:focus': { borderColor: '#c2185b' },
+  '.cm-panel button': { background: '#f8bbd0', border: '1px solid #f48fb1', borderRadius: '3px', color: '#4a2040', cursor: 'pointer', padding: '2px 8px', marginRight: '4px' },
+  '.cm-panel button:hover': { background: '#f48fb1' },
+  '.cm-panel label': { color: '#ad1464', marginRight: '8px', fontSize: '12px' },
+  '.cm-panel .cm-panel-close': { float: 'right', cursor: 'pointer' },
+}, { dark: false });
+
+const cmBlueKidsTheme = EditorView.theme({
+  '&': { height: '100%', background: '#e8f4fd', color: '#1a3a5c' },
+  '.cm-content': { caretColor: '#0277bd', minHeight: '100%' },
+  '.cm-gutters': { background: '#bbdefb', color: '#1565c0', border: 'none', borderRight: '1px solid #90caf9' },
+  '.cm-activeLineGutter': { background: '#90caf9' },
+  '.cm-activeLine': { background: '#bbdefb' },
+  '.cm-selectionBackground, ::selection': { background: '#64b5f6 !important' },
+  '.cm-cursor': { borderLeftColor: '#0277bd' },
+  '.cm-matchingBracket': { background: '#90caf9', color: '#1a3a5c !important' },
+  '.cm-tooltip.cm-tooltip-autocomplete': { background: '#e3f2fd', border: '1px solid #bbdefb', color: '#1a3a5c' },
+  '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': { background: '#64b5f6', color: '#fff' },
+  '.cm-panel': { background: '#bbdefb', borderTop: '1px solid #90caf9', color: '#1a3a5c', padding: '6px 10px' },
+  '.cm-panel input': { background: '#e8f4fd', border: '1px solid #64b5f6', borderRadius: '3px', color: '#1a3a5c', padding: '2px 6px', outline: 'none', marginRight: '4px' },
+  '.cm-panel input:focus': { borderColor: '#0277bd' },
+  '.cm-panel button': { background: '#90caf9', border: '1px solid #64b5f6', borderRadius: '3px', color: '#1a3a5c', cursor: 'pointer', padding: '2px 8px', marginRight: '4px' },
+  '.cm-panel button:hover': { background: '#64b5f6' },
+  '.cm-panel label': { color: '#1565c0', marginRight: '8px', fontSize: '12px' },
+  '.cm-panel .cm-panel-close': { float: 'right', cursor: 'pointer' },
+}, { dark: false });
+
+// ── Tema haritası: CSS body class → CodeMirror extension listesi ─────────────
+const CM_THEMES = {
+  '':          [oneDark, melpTheme],
+  'light':     [syntaxHighlighting(defaultHighlightStyle), cmLightTheme],
+  'dracula':   [oneDark, cmDraculaTheme],
+  'monokai':   [oneDark, cmMonokaiTheme],
+  'nord':      [oneDark, cmNordTheme],
+  'solarized': [oneDark, cmSolarizedTheme],
+  'pink':      [syntaxHighlighting(defaultHighlightStyle), cmPinkTheme],
+  'blue-kids': [syntaxHighlighting(defaultHighlightStyle), cmBlueKidsTheme],
+};
+
+// ── Dinamik compartment'lar ──────────────────────────────────────────────────
+const themeCompartment    = new Compartment();
+const fontSizeCompartment = new Compartment();
+
+function fontSizeExt(px) {
+  return EditorView.theme({ '&': { fontSize: px } });
+}
+
 // ── Lint yapılandırması (gelecekte LSP diagnostics bağlanacak) ──────────────
 const melpLinter = linter(() => []);    // şimdilik boş; LSP'den doldurulacak
 const lintCompartment = new Compartment();
@@ -125,8 +290,9 @@ export function createEditor(container, initialContent = '') {
         indentWithTab,
       ]),
       // Tema & dil
-      oneDark,
-      melpTheme,
+      themeCompartment.of(CM_THEMES['']),
+      fontFamilyExt,
+      fontSizeCompartment.of(fontSizeExt('14px')),
       ...melpLanguageExtension,
       // Lint (compartment ile sonradan güncellenebilir)
       lintCompartment.of(melpLinter),
@@ -174,4 +340,15 @@ export function createEditor(container, initialContent = '') {
       view.destroy();
     },
   };
+}
+
+/** Editörün CodeMirror temasını değiştirir */
+export function setEditorTheme(view, themeName) {
+  const theme = CM_THEMES[themeName] ?? CM_THEMES[''];
+  view.dispatch({ effects: themeCompartment.reconfigure(theme) });
+}
+
+/** Editörün yazı boyutunu değiştirir (örn. '14px') */
+export function setEditorFontSize(view, px) {
+  view.dispatch({ effects: fontSizeCompartment.reconfigure(fontSizeExt(px)) });
 }

@@ -366,7 +366,7 @@ function updateCursorInfo() {
 }
 
 // ── Renk paleti ──────────────────────────────────────────────────────────
-const PALETTE_CLASSES = ['light', 'dracula', 'monokai', 'nord', 'solarized'];
+const PALETTE_CLASSES = ['light', 'dracula', 'monokai', 'nord', 'solarized', 'pink', 'blue-kids'];
 function applyPalette(theme) {
   document.body.classList.remove(...PALETTE_CLASSES);
   if (theme) document.body.classList.add(theme);
@@ -374,6 +374,16 @@ function applyPalette(theme) {
   document.querySelectorAll('.palette-item').forEach(el => {
     el.classList.toggle('active', el.dataset.theme === theme);
   });
+  if (state.editor) MelpEditor.setEditorTheme(state.editor.view, theme);
+}
+
+const FONT_SIZE_MAP = { 'S': '12px', 'M': '14px', 'L': '17px', 'XL': '21px' };
+function applyFontSize(sizeKey) {
+  localStorage.setItem('melp-font-size', sizeKey);
+  document.querySelectorAll('.font-size-btn').forEach(el => {
+    el.classList.toggle('active', el.dataset.size === sizeKey);
+  });
+  if (state.editor) MelpEditor.setEditorFontSize(state.editor.view, FONT_SIZE_MAP[sizeKey] || '14px');
 }
 
 // ── Başlangıç ─────────────────────────────────────────────────────────────
@@ -416,4 +426,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
   applyPalette(localStorage.getItem('melp-theme') || '');
+
+  // Font boyutu
+  document.querySelectorAll('.font-size-btn').forEach(el => {
+    el.addEventListener('click', () => applyFontSize(el.dataset.size));
+  });
+  applyFontSize(localStorage.getItem('melp-font-size') || 'M');
 });
