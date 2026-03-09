@@ -188,8 +188,12 @@ function _textToNormalizerMap(text) {
 function buildDisplayText(lang) {
   // Tüm varsayılan eşleşmeleri "canonical = alias" formatında döndürür.
   // Kaydedilmiş özelleştirmeler varsa ilgili canonical satırını override eder.
+  // English için: kanonik dil, çeviriye gerek yok.
   try {
     const defaults = MelpEditor.getDefaultKeywords ? MelpEditor.getDefaultKeywords(lang) : {};
+    if (!defaults || Object.keys(defaults).length === 0) {
+      return '-- Bu dil kanonik dildir (English).\n-- Keyword dönüşümü gerekmez.\n-- Farklı bir dil seçip tekrar açın.';
+    }
     // defaults: {alias → canonical}  →  byCanonical: {canonical → alias} (ilk alias alınır)
     const byCanonical = {};
     for (const [alias, canonical] of Object.entries(defaults)) {
@@ -657,6 +661,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const lang = state.lang;
     modalTitle.textContent = 'Dili Özelleştir — ' + (langSel.options[langSel.selectedIndex]?.text || lang);
     customTextarea.value = buildDisplayText(lang);
+    // English için: textarea salt okunur, Kaydet gizli
+    const isCanonical = (lang === 'english');
+    customTextarea.readOnly = isCanonical;
+    customTextarea.style.opacity = isCanonical ? '0.55' : '1';
+    if (modalSave) modalSave.style.display = isCanonical ? 'none' : '';
     modalOverlay.classList.remove('hidden');
     customTextarea.focus();
   }
