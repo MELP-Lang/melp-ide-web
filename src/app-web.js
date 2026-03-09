@@ -365,21 +365,6 @@ function updateCursorInfo() {
   cursorInfo.textContent = `Sat ${line.number}, Sut ${pos - line.from + 1}`;
 }
 
-// ── Klavye kısayolları ─────────────────────────────────────────────────────
-document.addEventListener('keydown', async (e) => {
-  const ctrl = e.ctrlKey || e.metaKey;
-  if (ctrl && e.key === 's')  { e.preventDefault(); saveFile(); }
-  if (ctrl && e.key === 'n')  { e.preventDefault(); newFile(); }
-  if (ctrl && e.key === 'o')  { e.preventDefault(); openFileFromDisk(); }
-  if (e.key  === 'F5')        { e.preventDefault(); await compile(true); }
-  if (ctrl && e.key === 'b')  { e.preventDefault(); await compile(false); }
-  if (e.key  === 'Escape')    { $('output-panel').classList.add('hidden'); }
-});
-
-// ── Buton bağlamaları ──────────────────────────────────────────────────────
-$('btn-new').addEventListener('click', newFile);
-$('btn-open').addEventListener('click', openFileFromDisk);
-$('btn-save').addEventListener('click', saveFile);
 // ── Renk paleti ──────────────────────────────────────────────────────────
 const PALETTE_CLASSES = ['light', 'dracula', 'monokai', 'nord', 'solarized'];
 function applyPalette(theme) {
@@ -398,10 +383,24 @@ document.addEventListener('DOMContentLoaded', () => {
   setStatus('MELP IDE — Hazır');
   updateCursorInfo();
 
-  // Buton event listener'ları
+  // Buton bağlamaları
+  $('btn-new').addEventListener('click', newFile);
+  $('btn-open').addEventListener('click', openFileFromDisk);
+  $('btn-save').addEventListener('click', saveFile);
   $('btn-compile').addEventListener('click', () => compile(false));
   $('btn-run').addEventListener('click', () => compile(true));
   $('btn-close-output').addEventListener('click', () => $('output-panel').classList.add('hidden'));
+
+  // Klavye kısayolları
+  document.addEventListener('keydown', async (e) => {
+    const ctrl = e.ctrlKey || e.metaKey;
+    if (ctrl && e.key === 's')  { e.preventDefault(); saveFile(); }
+    if (ctrl && e.key === 'n')  { e.preventDefault(); newFile(); }
+    if (ctrl && e.key === 'o')  { e.preventDefault(); openFileFromDisk(); }
+    if (e.key  === 'F5')        { e.preventDefault(); await compile(true); }
+    if (ctrl && e.key === 'b')  { e.preventDefault(); await compile(false); }
+    if (e.key  === 'Escape')    { $('output-panel').classList.add('hidden'); }
+  });
 
   // Renk paleti
   $('palette-btn').addEventListener('click', (e) => {
