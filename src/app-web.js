@@ -413,24 +413,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key  === 'Escape')    { $('output-panel').classList.add('hidden'); }
   });
 
-  // Renk paleti
-  $('palette-btn').addEventListener('click', (e) => {
+  // Görünüm popup
+  $('appearance-btn').addEventListener('click', (e) => {
     e.stopPropagation();
-    $('palette-popup').classList.toggle('open');
+    $('appearance-popup').classList.toggle('open');
   });
-  document.addEventListener('click', () => $('palette-popup').classList.remove('open'));
+  document.addEventListener('click', () => $('appearance-popup').classList.remove('open'));
   document.querySelectorAll('.palette-item').forEach(el => {
     el.addEventListener('click', (e) => {
       e.stopPropagation();
       applyPalette(el.dataset.theme);
-      $('palette-popup').classList.remove('open');
+    });
+  });
+  document.querySelectorAll('.font-size-btn').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      applyFontSize(el.dataset.size);
     });
   });
   applyPalette(localStorage.getItem('melp-theme') || '');
-
-  // Font boyutu
-  document.querySelectorAll('.font-size-btn').forEach(el => {
-    el.addEventListener('click', () => applyFontSize(el.dataset.size));
-  });
   applyFontSize(localStorage.getItem('melp-font-size') || 'M');
 });

@@ -209,9 +209,7 @@
     .tb-btn.primary:hover { background: #0069ab; }
     .tb-btn.run     { background: #3d8b40; color: #fff; border-color: #3d8b40; }
     .tb-btn.run:hover { background: #2e7d32; }
-    .tb-btn.active  { border-color: var(--accent); color: var(--accent); font-weight: bold; }
     .tb-sep { flex: 1; }
-    #font-size-group { display: flex; gap: 2px; }
 
     /* ── Ana içerik ─────────────────────────────────────────────────────── */
     #workspace { display: flex; flex: 1; overflow: hidden; }
@@ -287,20 +285,20 @@
       font-size: 11px; color: var(--statusbar-fg);
     }
     #statusbar .sb-sep { flex: 1; }
-    #palette-picker { position: relative; }
-    #palette-btn {
-      background: var(--btn-bg); border: 1px solid var(--btn-border);
-      color: var(--fg); padding: 3px 10px; border-radius: 4px;
-      cursor: pointer; font-size: 11px; font-family: monospace;
-    }
-    #palette-btn:hover { background: var(--btn-hover); }
-    #palette-popup {
+    /* ── Görünüm popup ──────────────────────────────────────────────────── */
+    #appearance-picker { position: relative; }
+    #appearance-popup {
       display: none; position: absolute; top: 32px; left: 0;
       background: var(--sidebar-bg); border: 1px solid var(--border);
-      border-radius: 6px; padding: 6px; min-width: 140px;
+      border-radius: 6px; padding: 8px; min-width: 180px;
       z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.5);
     }
-    #palette-popup.open { display: block; }
+    #appearance-popup.open { display: block; }
+    .ap-section-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+      color: var(--sidebar-hdr-fg); padding: 4px 8px 2px; user-select: none;
+    }
+    .ap-divider { border: none; border-top: 1px solid var(--border); margin: 6px 0; }
     .palette-item {
       display: flex; align-items: center; gap: 8px;
       padding: 5px 8px; border-radius: 4px; cursor: pointer;
@@ -312,6 +310,15 @@
       width: 14px; height: 14px; border-radius: 3px;
       border: 2px solid; flex-shrink: 0;
     }
+    .font-size-row {
+      display: flex; gap: 4px; padding: 4px 8px;
+    }
+    .font-size-row .tb-btn {
+      flex: 1; text-align: center; padding: 4px 0;
+    }
+    .font-size-row .tb-btn.active {
+      border-color: var(--accent); color: var(--accent); font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -322,9 +329,10 @@
     <button class="tb-btn" id="btn-new"     title="Yeni (Ctrl+N)">+ Yeni</button>
     <button class="tb-btn" id="btn-open"    title="Dosya Aç (Ctrl+O)">📄 Aç</button>
     <button class="tb-btn" id="btn-save"    title="İndir (Ctrl+S)">💾 Kaydet</button>
-    <div id="palette-picker">
-      <button id="palette-btn" class="tb-btn">🎨 Tema</button>
-      <div id="palette-popup">
+    <div id="appearance-picker">
+      <button id="appearance-btn" class="tb-btn">🎨 Görünüm</button>
+      <div id="appearance-popup">
+        <div class="ap-section-label">Tema</div>
         <div class="palette-item" data-theme=""><span class="palette-swatch" style="background:#1e1e1e;border-color:#528bff"></span>Dark</div>
         <div class="palette-item" data-theme="light"><span class="palette-swatch" style="background:#ffffff;border-color:#007acc"></span>Light</div>
         <div class="palette-item" data-theme="dracula"><span class="palette-swatch" style="background:#282a36;border-color:#bd93f9"></span>Dracula</div>
@@ -333,13 +341,15 @@
         <div class="palette-item" data-theme="solarized"><span class="palette-swatch" style="background:#002b36;border-color:#268bd2"></span>Solarized</div>
         <div class="palette-item" data-theme="pink"><span class="palette-swatch" style="background:#fff0f5;border-color:#c2185b"></span>🌸 Pembe</div>
         <div class="palette-item" data-theme="blue-kids"><span class="palette-swatch" style="background:#e8f4fd;border-color:#0277bd"></span>🔵 Mavi Çocuk</div>
+        <hr class="ap-divider">
+        <div class="ap-section-label">Yazı Boyutu</div>
+        <div class="font-size-row">
+          <button class="tb-btn font-size-btn" data-size="S"  title="Küçük (12px)">S</button>
+          <button class="tb-btn font-size-btn" data-size="M"  title="Orta (14px)">M</button>
+          <button class="tb-btn font-size-btn" data-size="L"  title="Büyük (17px)">L</button>
+          <button class="tb-btn font-size-btn" data-size="XL" title="Çok Büyük (21px)">XL</button>
+        </div>
       </div>
-    </div>
-    <div id="font-size-group" title="Yazı Boyutu">
-      <button class="tb-btn font-size-btn" data-size="S"  title="Küçük (12px)">S</button>
-      <button class="tb-btn font-size-btn" data-size="M"  title="Orta (14px)">M</button>
-      <button class="tb-btn font-size-btn" data-size="L"  title="Büyük (17px)">L</button>
-      <button class="tb-btn font-size-btn" data-size="XL" title="Çok Büyük (21px)">XL</button>
     </div>
     <div class="tb-sep"></div>
     <button class="tb-btn primary" id="btn-compile" title="Derle (Ctrl+B)">⚙ Derle</button>
