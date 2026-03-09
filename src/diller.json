@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MELP Language Mapping Configuration",
+  "description": "Maps keywords from various languages to English PMPL",
+  "version": "1.0.0",
+  
+  "languages": {
+    "english": {
+      "enabled": true,
+      "description": "English (default, no translation needed)",
+      "keywords": {}
+    },
+    
+    "turkish": {
+      "enabled": true,
+      "description": "Turkish language support",
+      "keywords": {
+        "fonksiyon_sonu": "end_function",
+        "işlev_sonu": "end_function",
+        "fonksiyon": "function",
+        "işlev": "function",
+        "değişken": "variable",
+        "var": "variable",
+        "eğer": "if",
+        "değilse": "else",
+        "yoksa": "else",
+        "sonra": "then",
+        "yap": "do",
+        "döngü": "while",
+        "için": "for",
+        "döndür": "return",
+        "dön": "return",
+        "geri": "return",
+        "sayı": "numeric",
+        "sayısal": "numeric",
+        "metin": "string",
+        "yazı": "string",
+        "mantıksal": "boolean",
+        "doğru": "true",
+        "yanlış": "false",
+        "boş": "null",
+        "hiç": "null",
+        "ve": "and",
+        "veya": "or",
+        "değil": "not",
+        "yapı": "struct",
+        "sınıf": "class",
+        "dizi": "array",
+        "liste": "list",
+        "başla": "begin",
+        "bitir": "end",
+        "sonu": "end",
+        "son": "end",
+        "olarak": "as",
+        "al": "import",
+        "içe_aktar": "import",
+        "dışa_aktar": "export",
+        "modül": "module",
+        "paket": "package"
+      }
+    },
+    
+    "russian": {
+      "enabled": true,
+      "description": "Russian language support",
+      "keywords": {
+        "функция": "function",
+        "если": "if",
+        "иначе": "else",
+        "тогда": "then",
+        "пока": "while",
+        "для": "for",
+        "вернуть": "return",
+        "число": "numeric",
+        "строка": "string",
+        "истина": "true",
+        "ложь": "false",
+        "нуль": "null",
+        "и": "and",
+        "или": "or",
+        "не": "not",
+        "структура": "struct",
+        "класс": "class",
+        "массив": "array",
+        "список": "list",
+        "импорт": "import",
+        "экспорт": "export",
+        "модуль": "module"
+      }
+    },
+    
+    "arabic": {
+      "enabled": false,
+      "description": "Arabic language support (planned)",
+      "keywords": {
+        "دالة": "function",
+        "إذا": "if",
+        "وإلا": "else",
+        "عندئذ": "then",
+        "بينما": "while",
+        "رجوع": "return",
+        "رقم": "numeric",
+        "نص": "string",
+        "صحيح": "true",
+        "خطأ": "false"
+      }
+    },
+    
+    "chinese": {
+      "enabled": false,
+      "description": "Chinese language support (planned)",
+      "keywords": {
+        "函数": "function",
+        "如果": "if",
+        "否则": "else",
+        "那么": "then",
+        "当": "while",
+        "返回": "return",
+        "数字": "numeric",
+        "字符串": "string",
+        "真": "true",
+        "假": "false"
+      }
+    }
+  },
+  
+  "meta": {
+    "author": "MELP Team",
+    "date": "2026-01-28",
+    "notes": [
+      "Keywords are case-sensitive",
+      "Longest match first (e.g., 'end_if' before 'end')",
+      "Preserve whitespace and indentation",
+      "Comments are language-agnostic (-- and /* */)"
+    ]
+  }
+}

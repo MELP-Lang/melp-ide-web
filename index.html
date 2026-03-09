@@ -210,6 +210,16 @@
     .tb-btn.run     { background: #3d8b40; color: #fff; border-color: #3d8b40; }
     .tb-btn.run:hover { background: #2e7d32; }
     .tb-sep { flex: 1; }
+    /* ── Dil/Sözdizimi seçicileri ──────────────────────────────────────── */
+    .tb-select-group { display: flex; align-items: center; gap: 3px; }
+    .tb-select-label { font-size: 10px; color: var(--sidebar-hdr-fg); white-space: nowrap; }
+    .tb-select {
+      background: var(--btn-bg); border: 1px solid var(--btn-border);
+      color: var(--fg); padding: 2px 6px; border-radius: 4px;
+      font-size: 11px; font-family: monospace; cursor: pointer;
+      max-width: 120px;
+    }
+    .tb-select:focus { outline: 1px solid var(--accent); }
 
     /* ── Ana içerik ─────────────────────────────────────────────────────── */
     #workspace { display: flex; flex: 1; overflow: hidden; }
@@ -350,6 +360,15 @@
           <button class="tb-btn font-size-btn" data-size="XL" title="Çok Büyük (21px)">XL</button>
         </div>
       </div>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-select-group" title="Yazım dili">
+      <span class="tb-select-label">Dil</span>
+      <select id="sel-lang" class="tb-select"></select>
+    </div>
+    <div class="tb-select-group" title="Sözdizimi stili">
+      <span class="tb-select-label">Sözdizimi</span>
+      <select id="sel-syntax" class="tb-select"></select>
     </div>
     <div class="tb-sep"></div>
     <button class="tb-btn primary" id="btn-compile" title="Derle (Ctrl+B)">⚙ Derle</button>

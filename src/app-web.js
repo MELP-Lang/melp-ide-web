@@ -94,8 +94,8 @@ const state = {
   editor:     null,
   modified:   false,
   tabs:       [],
-  activeTab:  null,
-};
+  activeTab:  null,  lang:       localStorage.getItem('melp-lang')   || 'english',
+  syntax:     localStorage.getItem('melp-syntax') || 'pmpl',};
 
 // ── DOM ────────────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -298,21 +298,31 @@ function loadExamplesPanel() {
   });
 }
 
-// ── Derleme & çalıştırma ───────────────────────────────────────────────────
+// ── Derleme & çalıştırma ──────────────────────────────────────────────
 async function compile(andRun = false) {
-  const code = state.editor.getValue();
+  let code = state.editor.getValue();
+
+  let normInfo = '';
+  // Normalleştirme: Türkçe/VBNet vb. → MELP standart sözdizimi
+  if (state.lang !== 'english' || state.syntax !== 'pmpl') {
+    try {
+      code = MelpEditor.normalize(code, state.lang, state.syntax);
+      normInfo = `🔄 Normalleştirme: dil=${state.lang} | sözdizimi=${state.syntax}\n`;
+    } catch (e) {
+      // Normalizer bulunamazsa devam et
+    }
+  }
 
   showOutput('⏳ ' + (andRun ? 'Derleniyor ve çalıştırılıyor...' : 'Derleniyor...') + '\n');
+  if (normInfo) appendOutput(normInfo);
   setStatus('⏳ Çalışıyor...');
 
   let json;
   try {
     json = await backend.compile(code, andRun);
   } catch (err) {
-    appendOutput('❌ Backend bağlantı hatası: ' + err.message + '\n');
-    appendOutput('\nBackend URL: ' + (API_URL || '(aynı origin)') + '\n');
-    appendOutput('index.html içindeki window.MELP_API_URL değerini kontrol edin.\n');
-    setStatus('❌ Bağlantı hatası');
+    appendOutput('❌ Derleme hatası: ' + err.message + '\n');
+    setStatus('❌ Hata');
     return;
   }
 
@@ -433,4 +443,34 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   applyPalette(localStorage.getItem('melp-theme') || '');
   applyFontSize(localStorage.getItem('melp-font-size') || 'M');
+
+  // Dil & Sözdizimi seçicileri
+  const langSel   = $('sel-lang');
+  const syntaxSel = $('sel-syntax');
+
+  try {
+    // Seçenekleri normalize modülünden doldur
+    MelpEditor.getLanguageOptions().forEach(o => {
+      const opt = document.createElement('option');
+      opt.value = o.id; opt.textContent = o.name;
+      langSel.appendChild(opt);
+    });
+    MelpEditor.getSyntaxOptions().forEach(o => {
+      const opt = document.createElement('option');
+      opt.value = o.id; opt.textContent = o.name;
+      syntaxSel.appendChild(opt);
+    });
+  } catch(e) { /* normalizer yüklenmezse statik listeler kalacak */ }
+
+  langSel.value   = state.lang;
+  syntaxSel.value = state.syntax;
+
+  langSel.addEventListener('change', () => {
+    state.lang = langSel.value;
+    localStorage.setItem('melp-lang', state.lang);
+  });
+  syntaxSel.addEventListener('change', () => {
+    state.syntax = syntaxSel.value;
+    localStorage.setItem('melp-syntax', state.syntax);
+  });
 });

@@ -1,0 +1,232 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MELP Syntax Mapping Configuration",
+  "description": "Transforms various programming syntax styles to PMPL base syntax",
+  "version": "1.0.0",
+  "syntaxes": {
+    "pmpl": {
+      "enabled": true,
+      "description": "PMPL base syntax (default, no transformation)",
+      "block_delimiter": "keyword",
+      "statement_terminator": "newline",
+      "param_separator": ";"
+    },
+    "c_style": {
+      "enabled": true,
+      "description": "C/C++/Java/JavaScript style",
+      "block_delimiter": "braces",
+      "statement_terminator": ";",
+      "param_separator": ",",
+      "patterns": [
+        {
+          "name": "if_block",
+          "match": "if\\s*\\((.*)\\)\\s*\\{",
+          "replace": "if $1 then",
+          "end_match": "\\}",
+          "end_replace": "end_if"
+        },
+        {
+          "name": "else_if_block",
+          "match": "\\}\\s*else\\s+if\\s*\\((.*)\\)\\s*\\{",
+          "replace": "else_if $1 then",
+          "end_match": "\\}",
+          "end_replace": "end_if"
+        },
+        {
+          "name": "else_block",
+          "match": "\\}\\s*else\\s*\\{",
+          "replace": "else",
+          "end_match": "\\}",
+          "end_replace": "end_if"
+        },
+        {
+          "name": "while_block",
+          "match": "while\\s*\\((.*)\\)\\s*\\{",
+          "replace": "while $1 do",
+          "end_match": "\\}",
+          "end_replace": "end_while"
+        },
+        {
+          "name": "for_block",
+          "match": "for\\s*\\((.*)\\)\\s*\\{",
+          "replace": "for $1 do",
+          "end_match": "\\}",
+          "end_replace": "end_for"
+        },
+        {
+          "name": "function_block",
+          "match": "function\\s+(\\w+)\\s*\\((.*)\\)\\s*\\{",
+          "replace": "function $1($2)",
+          "end_match": "\\}",
+          "end_replace": "end_function"
+        },
+        {
+          "name": "param_separator",
+          "match": ",",
+          "replace": ";",
+          "context": "function_params"
+        }
+      ]
+    },
+    "python_style": {
+      "enabled": true,
+      "description": "Python style (colon + indentation)",
+      "block_delimiter": "indentation",
+      "statement_terminator": "newline",
+      "param_separator": ",",
+      "patterns": [
+        {
+          "name": "if_block",
+          "match": "if\\s+(.*):",
+          "replace": "if $1 then",
+          "indent_start": true,
+          "indent_end": "end_if"
+        },
+        {
+          "name": "elif_block",
+          "match": "elif\\s+(.*):",
+          "replace": "else_if $1 then",
+          "indent_start": true,
+          "indent_end": "end_if"
+        },
+        {
+          "name": "else_block",
+          "match": "else:",
+          "replace": "else",
+          "indent_start": true,
+          "indent_end": "end_if"
+        },
+        {
+          "name": "while_block",
+          "match": "while\\s+(.*):",
+          "replace": "while $1 do",
+          "indent_start": true,
+          "indent_end": "end_while"
+        },
+        {
+          "name": "for_block",
+          "match": "for\\s+(.*?)\\s+in\\s+(.*?):",
+          "replace": "for $1 in $2 do",
+          "indent_start": true,
+          "indent_end": "end_for"
+        },
+        {
+          "name": "def_block",
+          "match": "def\\s+(\\w+)\\s*\\((.*)\\)\\s*->\\s*(\\w+):",
+          "replace": "function $1($2) as $3",
+          "indent_start": true,
+          "indent_end": "end_function"
+        },
+        {
+          "name": "def_block_no_return",
+          "match": "def\\s+(\\w+)\\s*\\((.*)\\):",
+          "replace": "function $1($2)",
+          "indent_start": true,
+          "indent_end": "end_function"
+        }
+      ]
+    },
+    "go_style": {
+      "enabled": false,
+      "description": "Go style (planned)",
+      "block_delimiter": "braces",
+      "statement_terminator": "newline"
+    },
+    "rust_style": {
+      "enabled": false,
+      "description": "Rust style (planned)",
+      "block_delimiter": "braces",
+      "statement_terminator": ";"
+    },
+    "vbnet": {
+      "enabled": true,
+      "description": "VB.NET style (Function/End Function, explicit End keywords)",
+      "block_delimiter": "keyword",
+      "statement_terminator": "newline",
+      "param_separator": ",",
+      "patterns": [
+        {
+          "name": "function_def_typed",
+          "match": "function\\s+(\\w+)\\s*\\((.*)\\)\\s+as\\s+(\\w+)",
+          "replace": "function $1($2) as $3",
+          "case_insensitive": true
+        },
+        {
+          "name": "sub_def",
+          "match": "sub\\s+(\\w+)\\s*\\((.*)\\)",
+          "replace": "function $1($2)",
+          "case_insensitive": true
+        },
+        {
+          "name": "end_function",
+          "match": "end\\s+function",
+          "replace": "end_function",
+          "case_insensitive": true
+        },
+        {
+          "name": "end_sub",
+          "match": "end\\s+sub",
+          "replace": "end_function",
+          "case_insensitive": true
+        },
+        {
+          "name": "end_if",
+          "match": "end\\s+if",
+          "replace": "end_if",
+          "case_insensitive": true
+        },
+        {
+          "name": "end_while",
+          "match": "end\\s+while",
+          "replace": "end_while",
+          "case_insensitive": true
+        },
+        {
+          "name": "elseif_stmt",
+          "match": "elseif\\s+(.*)\\s+then",
+          "replace": "else_if $1 then",
+          "case_insensitive": true
+        },
+        {
+          "name": "if_then",
+          "match": "^\\s*if\\s+(.*)\\s+then\\s*$",
+          "replace": "if $1 then",
+          "case_insensitive": true
+        }
+      ]
+    }
+  },
+  "common_transforms": {
+    "string_interpolation": {
+      "description": "Convert template literals to concatenation",
+      "patterns": [
+        {
+          "match": "f\"(.*)\\{(.*?)\\}(.*)\"",
+          "replace": "\"$1\" + $2 + \"$3\"",
+          "recursive": true
+        },
+        {
+          "match": "`(.*)\\$\\{(.*?)\\}(.*)`",
+          "replace": "\"$1\" + $2 + \"$3\"",
+          "recursive": true
+        }
+      ]
+    },
+    "ternary_operator": {
+      "description": "Convert ternary to if-then-else expression",
+      "enabled": false,
+      "note": "PMPL supports ternary directly"
+    }
+  },
+  "meta": {
+    "author": "MELP Team",
+    "date": "2026-01-28",
+    "notes": [
+      "Patterns are applied in order",
+      "Use regex capture groups for flexibility",
+      "Indentation tracking for Python-style",
+      "Preserve comments and string literals",
+      "Multi-pass for nested structures"
+    ]
+  }
+}
