@@ -250,12 +250,13 @@
     #statusbar .sb-sep { flex: 1; }
     #palette-picker { position: relative; }
     #palette-btn {
-      background: transparent; border: none; color: var(--statusbar-fg);
-      cursor: pointer; font-size: 11px; padding: 0 4px;
+      background: var(--btn-bg); border: 1px solid var(--btn-border);
+      color: var(--fg); padding: 3px 10px; border-radius: 4px;
+      cursor: pointer; font-size: 11px; font-family: monospace;
     }
-    #palette-btn:hover { text-decoration: underline; }
+    #palette-btn:hover { background: var(--btn-hover); }
     #palette-popup {
-      display: none; position: absolute; bottom: 28px; right: 0;
+      display: none; position: absolute; top: 32px; left: 0;
       background: var(--sidebar-bg); border: 1px solid var(--border);
       border-radius: 6px; padding: 6px; min-width: 140px;
       z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.5);
@@ -282,6 +283,17 @@
     <button class="tb-btn" id="btn-new"     title="Yeni (Ctrl+N)">+ Yeni</button>
     <button class="tb-btn" id="btn-open"    title="Dosya Aç (Ctrl+O)">📄 Aç</button>
     <button class="tb-btn" id="btn-save"    title="İndir (Ctrl+S)">💾 Kaydet</button>
+    <div id="palette-picker">
+      <button id="palette-btn" class="tb-btn">🎨 Tema</button>
+      <div id="palette-popup">
+        <div class="palette-item" data-theme=""><span class="palette-swatch" style="background:#1e1e1e;border-color:#528bff"></span>Dark</div>
+        <div class="palette-item" data-theme="light"><span class="palette-swatch" style="background:#ffffff;border-color:#007acc"></span>Light</div>
+        <div class="palette-item" data-theme="dracula"><span class="palette-swatch" style="background:#282a36;border-color:#bd93f9"></span>Dracula</div>
+        <div class="palette-item" data-theme="monokai"><span class="palette-swatch" style="background:#272822;border-color:#f92672"></span>Monokai</div>
+        <div class="palette-item" data-theme="nord"><span class="palette-swatch" style="background:#2e3440;border-color:#88c0d0"></span>Nord</div>
+        <div class="palette-item" data-theme="solarized"><span class="palette-swatch" style="background:#002b36;border-color:#268bd2"></span>Solarized</div>
+      </div>
+    </div>
     <div class="tb-sep"></div>
     <button class="tb-btn primary" id="btn-compile" title="Derle (Ctrl+B)">⚙ Derle</button>
     <button class="tb-btn run"     id="btn-run"     title="Çalıştır (F5)">▶ Çalıştır</button>
@@ -320,17 +332,6 @@
     <span id="cursor-info">Sat 1, Sut 1</span>
     <span>MELP</span>
     <span>UTF-8</span>
-    <div id="palette-picker">
-      <button id="palette-btn">🎨 Tema</button>
-      <div id="palette-popup">
-        <div class="palette-item" data-theme=""><span class="palette-swatch" style="background:#1e1e1e;border-color:#528bff"></span>Dark</div>
-        <div class="palette-item" data-theme="light"><span class="palette-swatch" style="background:#ffffff;border-color:#007acc"></span>Light</div>
-        <div class="palette-item" data-theme="dracula"><span class="palette-swatch" style="background:#282a36;border-color:#bd93f9"></span>Dracula</div>
-        <div class="palette-item" data-theme="monokai"><span class="palette-swatch" style="background:#272822;border-color:#f92672"></span>Monokai</div>
-        <div class="palette-item" data-theme="nord"><span class="palette-swatch" style="background:#2e3440;border-color:#88c0d0"></span>Nord</div>
-        <div class="palette-item" data-theme="solarized"><span class="palette-swatch" style="background:#002b36;border-color:#268bd2"></span>Solarized</div>
-      </div>
-    </div>
   </div>
 
   <script src="app-web.js" defer></script>
