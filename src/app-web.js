@@ -8,14 +8,91 @@ const API_URL = (typeof window.MELP_API_URL !== 'undefined' && window.MELP_API_U
   ? window.MELP_API_URL.replace(/\/$/, '')
   : '';  // Boşsa aynı origin (local dev veya backend aynı sunucuda)
 
+// ── WASM Backend (tarayıcı içi derleme) ────────────────────────────────────
+// melp_compiler.wasm: MeLP kaynak kodu → WASM binary (LLVM olmadan)
+// Aktivasyon: backend.compile() içindeki return satırını değiştir.
+let _melpModule = null;
+async function _loadMelpModule() {
+  if (_melpModule) return _melpModule;
+  // MelpCompiler() global'i melp_compiler.js yüklenince tanımlanır
+  if (typeof MelpCompiler === 'undefined') {
+    throw new Error('melp_compiler.js yüklenmemiş. index.html\'e ekle: <script src="wasm/melp_compiler.js"></script>');
+  }
+  _melpModule = await MelpCompiler();
+  return _melpModule;
+}
+
+// Kullanıcı WASM binary'sini tarayıcıda çalıştırmak için basit WASI polyfill
+async function _execWasm(wasmBytes) {
+  let stdout = '';
+  const importObject = {
+    wasi_snapshot_preview1: {
+      fd_write(fd, iovPtr, iovCnt, nwrittenPtr) {
+        const mem = new DataView(instance.exports.memory.buffer);
+        let written = 0;
+        for (let i = 0; i < iovCnt; i++) {
+          const base = mem.getUint32(iovPtr + i * 8,     true);
+          const len  = mem.getUint32(iovPtr + i * 8 + 4, true);
+          const bytes = new Uint8Array(instance.exports.memory.buffer, base, len);
+          stdout += new TextDecoder().decode(bytes);
+          written += len;
+        }
+        mem.setUint32(nwrittenPtr, written, true);
+        return 0;
+      },
+      proc_exit(code) { throw { exitCode: code }; },
+      environ_get()          { return 0; },
+      environ_sizes_get()    { return 0; },
+      args_get()             { return 0; },
+      args_sizes_get()       { return 0; },
+      clock_time_get()       { return 0; },
+      clock_res_get()        { return 0; },
+    }
+  };
+  let instance;
+  ({ instance } = await WebAssembly.instantiate(wasmBytes, importObject));
+  try {
+    instance.exports._start?.();
+    instance.exports.main?.();
+  } catch (e) {
+    if (e && typeof e.exitCode !== 'undefined' && e.exitCode !== 0) {
+      return { stdout, stderr: `exit code ${e.exitCode}`, exitCode: e.exitCode };
+    }
+  }
+  return { stdout, stderr: '', exitCode: 0 };
+}
+
+const wasmBackend = {
+  async compile(code, run) {
+    const mod = await _loadMelpModule();
+    const rc = mod.ccall('melp_compile', 'number', ['string'], [code]);
+    if (rc !== 0) {
+      const errStr = mod.ccall('melp_get_error', 'string', [], []);
+      return { stdout: '', stderr: errStr || 'Derleme hatası', exitCode: 1 };
+    }
+    const size = mod.ccall('melp_get_wasm_size', 'number', [], []);
+    const ptr  = mod.ccall('melp_get_wasm_ptr',  'number', [], []);
+    const wasmBytes = new Uint8Array(mod.HEAPU8.buffer, ptr, size).slice();
+
+    if (!run) {
+      // Sadece derleme — başarı mesajı döndür
+      return { stdout: `✅ Derleme başarılı (${size} byte WASM)\n`, stderr: '', exitCode: 0 };
+    }
+    // Çalıştır
+    return _execWasm(wasmBytes);
+  }
+};
+
 // ── Backend adaptörü ───────────────────────────────────────────────────────
 // Railway modu: fetch → POST /api/compile
-// WASM modu (gelecek): melp_compiler.wasm tarayıcıda çalıştırır
-// Geçiş için sadece bu nesneyi değiştirmek yeterli.
+// WASM modu: wasmBackend (tarayıcı içi, Railway gerektirmez)
+// Geçiş için sadece aktif satırı değiştir.
 const backend = {
   async compile(code, run) {
-    // WASM hazır olduğunda burası değişecek:
+    // ── WASM modu (aktifleştirmek için aşağıdaki satırı uncomment yap) ──
     // return wasmBackend.compile(code, run);
+
+    // ── Railway / sunucu modu (varsayılan) ───────────────────────────────
     const res  = await fetch(API_URL + '/api/compile', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -198,15 +275,15 @@ const EXAMPLES = [
   },
   {
     label: 'Struct',
-    code: `struct Nokta\n    x as numeric\n    y as numeric\nend_struct\n\nfunction Nokta.topla(self as Nokta, diger as Nokta) as Nokta\n    return Nokta{x: self.x + diger.x, y: self.y + diger.y}\nend_function\n\nfunction main()\n    a = Nokta{x: 3, y: 4}\n    b = Nokta{x: 1, y: 2}\n    c = a.topla(b)\n    print(c.x)\n    print(c.y)\nend_function\n`,
+    code: `struct Nokta\n    x as numeric\n    y as numeric\nend_struct\n\nfunction main()\n    Nokta a\n    a.x = 3\n    a.y = 4\n    Nokta b\n    b.x = 1\n    b.y = 2\n    print(a.x + b.x)\n    print(a.y + b.y)\nend_function\n`,
   },
   {
     label: 'Enum + Match',
-    code: `enum Renk\n    Kirmizi\n    Yesil\n    Mavi\nend_enum\n\nfunction main()\n    r = Renk.Kirmizi\n    match r\n        Renk.Kirmizi => print("kırmızı")\n        Renk.Yesil   => print("yeşil")\n        Renk.Mavi    => print("mavi")\n    end_match\nend_function\n`,
+    code: `enum Renk\n    Kirmizi\n    Yesil\n    Mavi\nend_enum\n\nfunction main()\n    numeric r = Renk.Kirmizi\n    match r\n        case Renk.Kirmizi then print("kirmizi")\n        case Renk.Yesil   then print("yesil")\n        case Renk.Mavi    then print("mavi")\n    end_match\n    return 0\nend_function\n`,
   },
   {
     label: 'Try / Hata',
-    code: `function bolme(a as numeric, b as numeric) as numeric\n    if b == 0 then\n        panic("sıfıra bölme!")\n    end_if\n    return a / b\nend_function\n\nfunction main()\n    try\n        r = bolme(10, 0)\n        print(r)\n    end_try\nend_function\n`,
+    code: `function bolme(numeric a; numeric b) as numeric\n    if b == 0 then\n        throw "sifira bolme!"\n    end_if\n    return a / b\nend_function\n\nfunction main()\n    try\n        numeric r = bolme(10; 0)\n        print(r)\n    catch e\n        print("hata: sifira bolme")\n    end_try\n    return 0\nend_function\n`,
   },
 ];
 
