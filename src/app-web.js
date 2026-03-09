@@ -383,10 +383,29 @@ $('btn-save').addEventListener('click', saveFile);
 $('btn-compile').addEventListener('click', () => compile(false));
 $('btn-run').addEventListener('click', () => compile(true));
 $('btn-close-output').addEventListener('click', () => $('output-panel').classList.add('hidden'));
-$('theme-toggle').addEventListener('click', () => {
-  document.body.classList.toggle('light');
-  $('theme-toggle').textContent = document.body.classList.contains('light') ? '🌙 Dark' : '☀ Light';
+// ── Renk paleti ──────────────────────────────────────────────────────────
+const PALETTE_CLASSES = ['light', 'dracula', 'monokai', 'nord', 'solarized'];
+function applyPalette(theme) {
+  document.body.classList.remove(...PALETTE_CLASSES);
+  if (theme) document.body.classList.add(theme);
+  localStorage.setItem('melp-theme', theme);
+  document.querySelectorAll('.palette-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.theme === theme);
+  });
+}
+$('palette-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  $('palette-popup').classList.toggle('open');
 });
+document.addEventListener('click', () => $('palette-popup').classList.remove('open'));
+document.querySelectorAll('.palette-item').forEach(el => {
+  el.addEventListener('click', (e) => {
+    e.stopPropagation();
+    applyPalette(el.dataset.theme);
+    $('palette-popup').classList.remove('open');
+  });
+});
+applyPalette(localStorage.getItem('melp-theme') || '');
 
 // ── Başlangıç ─────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {

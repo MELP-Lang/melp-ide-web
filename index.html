@@ -51,12 +51,101 @@
       --tab-active-bg:  #ffffff;
       --tab-active-fg:  #383a42;
       --statusbar-bg:   #007acc;
+      --statusbar-fg:   #fff;
       --output-bg:      #f8f8f8;
       --hover-bg:       #e8e8e8;
       --border:         #ddd;
       --btn-bg:         rgba(0,0,0,0.06);
       --btn-border:     rgba(0,0,0,0.15);
       --btn-hover:      rgba(0,0,0,0.1);
+    }
+    body.dracula {
+      --bg:             #282a36;
+      --fg:             #f8f8f2;
+      --titlebar-bg:    #21222c;
+      --sidebar-bg:     #21222c;
+      --sidebar-fg:     #f8f8f2;
+      --sidebar-hdr-fg: #6272a4;
+      --tabs-bg:        #21222c;
+      --tab-fg:         #6272a4;
+      --tab-active-bg:  #282a36;
+      --tab-active-fg:  #f8f8f2;
+      --statusbar-bg:   #6272a4;
+      --statusbar-fg:   #f8f8f2;
+      --hover-bg:       #44475a;
+      --border:         #191a21;
+      --accent:         #bd93f9;
+      --modified:       #ffb86c;
+      --output-bg:      #191a21;
+      --btn-bg:         rgba(255,255,255,0.06);
+      --btn-border:     rgba(255,255,255,0.12);
+      --btn-hover:      rgba(255,255,255,0.12);
+    }
+    body.monokai {
+      --bg:             #272822;
+      --fg:             #f8f8f2;
+      --titlebar-bg:    #1e1f1c;
+      --sidebar-bg:     #1e1f1c;
+      --sidebar-fg:     #f8f8f2;
+      --sidebar-hdr-fg: #75715e;
+      --tabs-bg:        #1e1f1c;
+      --tab-fg:         #75715e;
+      --tab-active-bg:  #272822;
+      --tab-active-fg:  #f8f8f2;
+      --statusbar-bg:   #75715e;
+      --statusbar-fg:   #f8f8f2;
+      --hover-bg:       #3e3d32;
+      --border:         #1a1b17;
+      --accent:         #f92672;
+      --modified:       #e6db74;
+      --output-bg:      #1a1b17;
+      --btn-bg:         rgba(255,255,255,0.06);
+      --btn-border:     rgba(255,255,255,0.12);
+      --btn-hover:      rgba(255,255,255,0.12);
+    }
+    body.nord {
+      --bg:             #2e3440;
+      --fg:             #d8dee9;
+      --titlebar-bg:    #242933;
+      --sidebar-bg:     #242933;
+      --sidebar-fg:     #d8dee9;
+      --sidebar-hdr-fg: #4c566a;
+      --tabs-bg:        #242933;
+      --tab-fg:         #4c566a;
+      --tab-active-bg:  #2e3440;
+      --tab-active-fg:  #eceff4;
+      --statusbar-bg:   #5e81ac;
+      --statusbar-fg:   #eceff4;
+      --hover-bg:       #3b4252;
+      --border:         #1c2028;
+      --accent:         #88c0d0;
+      --modified:       #ebcb8b;
+      --output-bg:      #1c2028;
+      --btn-bg:         rgba(255,255,255,0.06);
+      --btn-border:     rgba(255,255,255,0.12);
+      --btn-hover:      rgba(255,255,255,0.12);
+    }
+    body.solarized {
+      --bg:             #002b36;
+      --fg:             #839496;
+      --titlebar-bg:    #073642;
+      --sidebar-bg:     #073642;
+      --sidebar-fg:     #93a1a1;
+      --sidebar-hdr-fg: #657b83;
+      --tabs-bg:        #073642;
+      --tab-fg:         #657b83;
+      --tab-active-bg:  #002b36;
+      --tab-active-fg:  #93a1a1;
+      --statusbar-bg:   #268bd2;
+      --statusbar-fg:   #fdf6e3;
+      --hover-bg:       #0d4a5a;
+      --border:         #00212b;
+      --accent:         #268bd2;
+      --modified:       #b58900;
+      --output-bg:      #001e26;
+      --btn-bg:         rgba(255,255,255,0.06);
+      --btn-border:     rgba(255,255,255,0.14);
+      --btn-hover:      rgba(255,255,255,0.1);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -159,11 +248,30 @@
       font-size: 11px; color: var(--statusbar-fg);
     }
     #statusbar .sb-sep { flex: 1; }
-    #theme-toggle {
+    #palette-picker { position: relative; }
+    #palette-btn {
       background: transparent; border: none; color: var(--statusbar-fg);
       cursor: pointer; font-size: 11px; padding: 0 4px;
     }
-    #theme-toggle:hover { text-decoration: underline; }
+    #palette-btn:hover { text-decoration: underline; }
+    #palette-popup {
+      display: none; position: absolute; bottom: 28px; right: 0;
+      background: var(--sidebar-bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 6px; min-width: 140px;
+      z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    }
+    #palette-popup.open { display: block; }
+    .palette-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 8px; border-radius: 4px; cursor: pointer;
+      color: var(--fg); font-size: 12px;
+    }
+    .palette-item:hover { background: var(--hover-bg); }
+    .palette-item.active { background: var(--hover-bg); font-weight: 600; }
+    .palette-swatch {
+      width: 14px; height: 14px; border-radius: 3px;
+      border: 2px solid; flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -212,7 +320,17 @@
     <span id="cursor-info">Sat 1, Sut 1</span>
     <span>MELP</span>
     <span>UTF-8</span>
-    <button id="theme-toggle">☀ Light</button>
+    <div id="palette-picker">
+      <button id="palette-btn">🎨 Tema</button>
+      <div id="palette-popup">
+        <div class="palette-item" data-theme=""><span class="palette-swatch" style="background:#1e1e1e;border-color:#528bff"></span>Dark</div>
+        <div class="palette-item" data-theme="light"><span class="palette-swatch" style="background:#ffffff;border-color:#007acc"></span>Light</div>
+        <div class="palette-item" data-theme="dracula"><span class="palette-swatch" style="background:#282a36;border-color:#bd93f9"></span>Dracula</div>
+        <div class="palette-item" data-theme="monokai"><span class="palette-swatch" style="background:#272822;border-color:#f92672"></span>Monokai</div>
+        <div class="palette-item" data-theme="nord"><span class="palette-swatch" style="background:#2e3440;border-color:#88c0d0"></span>Nord</div>
+        <div class="palette-item" data-theme="solarized"><span class="palette-swatch" style="background:#002b36;border-color:#268bd2"></span>Solarized</div>
+      </div>
+    </div>
   </div>
 
   <script src="app-web.js"></script>
