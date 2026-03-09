@@ -275,19 +275,12 @@
     .modal-hint { font-size: 11px; opacity: 0.7; margin: 0 0 10px; line-height: 1.5; }
     .modal-hint code { background: var(--btn-bg); padding: 1px 4px; border-radius: 3px; font-size: 11px; }
     .modal-textarea {
-      width: 100%; box-sizing: border-box; height: 160px; resize: vertical;
+      width: 100%; box-sizing: border-box; height: 300px; resize: vertical;
       background: var(--btn-bg); color: var(--fg); border: 1px solid var(--border);
       border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px;
       padding: 8px; outline: none; line-height: 1.6;
     }
     .modal-textarea:focus { border-color: var(--accent); }
-    .modal-defaults { margin-top: 12px; font-size: 11px; }
-    .modal-defaults summary { cursor: pointer; opacity: 0.6; }
-    .modal-defaults-pre {
-      margin: 6px 0 0; max-height: 160px; overflow-y: auto;
-      background: var(--btn-bg); border: 1px solid var(--border);
-      border-radius: 4px; padding: 8px; font-size: 11px; line-height: 1.5;
-    }
     .modal-footer {
       padding: 10px 16px; border-top: 1px solid var(--border);
       display: flex; gap: 8px; justify-content: flex-end;
@@ -472,16 +465,12 @@
       </div>
       <div class="modal-body">
         <p class="modal-hint">
-          Seçili dil için özel keyword eşleşmeleri ekleyin ya da varsayılanları geçersiz kılın.<br>
-          Her satıra bir eşleşme: <code>senkelime = canonical</code><br>
-          Örnek: <code>yaz = print</code>&nbsp;&nbsp;<code>ana = main</code>&nbsp;&nbsp;<code>say = numeric</code>
+          Her satıra bir eşleşme: <code>canonical = senin_kelimen</code><br>
+          Örnek: <code>print = yaz</code>&nbsp;&nbsp;<code>main = ana</code>&nbsp;&nbsp;<code>numeric = sayı</code><br>
+          Boş veya tanınmayan bir canonical (örn. <code>prin = yaz</code> ya da <code>print =</code>) kaydedilmez — varsayılan korunur.
         </p>
         <textarea id="custom-map-textarea" class="modal-textarea"
-          placeholder="-- Özel eşleşmeleriniz buraya&#10;yaz = print&#10;ana = main"></textarea>
-        <details class="modal-defaults">
-          <summary>Varsayılan eşleşmeler (salt okunur)</summary>
-          <pre id="defaults-preview" class="modal-defaults-pre"></pre>
-        </details>
+          placeholder="print = yaz&#10;main = ana&#10;if = eğer"></textarea>
       </div>
       <div class="modal-footer">
         <button id="btn-lang-modal-save" class="tb-btn primary">💾 Kaydet</button>

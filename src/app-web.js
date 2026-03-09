@@ -166,23 +166,54 @@ function updateDirectivesInEditor() {
 }
 
 // ── Özel keyword haritası ─────────────────────────────────────────────────
-function parseKeywordText(text) {
+// Display format: "canonical = alias"  (örn. print = yaz)
+// Storage format: "canonical = alias" (aynı — textarea içeriği doğrudan kaydedilir)
+// Normalizer format: {alias: canonical} — apply sırasında çevrilir
+
+function _textToNormalizerMap(text) {
+  // "canonical = alias" satırlarını parse edip {alias: canonical} döndürür
   const map = {};
   for (const line of text.split('\n')) {
     const t = line.trim();
     if (!t || t.startsWith('--')) continue;
     const eq = t.indexOf('=');
     if (eq < 1) continue;
-    const k = t.slice(0, eq).trim();
-    const v = t.slice(eq + 1).trim();
-    if (k && v) map[k] = v;
+    const canonical = t.slice(0, eq).trim();
+    const alias     = t.slice(eq + 1).trim();
+    if (canonical && alias) map[alias] = canonical;
   }
   return map;
 }
 
+function buildDisplayText(lang) {
+  // Tüm varsayılan eşleşmeleri "canonical = alias" formatında döndürür.
+  // Kaydedilmiş özelleştirmeler varsa ilgili canonical satırını override eder.
+  try {
+    const defaults = MelpEditor.getDefaultKeywords ? MelpEditor.getDefaultKeywords(lang) : {};
+    // defaults: {alias → canonical}  →  byCanonical: {canonical → alias} (ilk alias alınır)
+    const byCanonical = {};
+    for (const [alias, canonical] of Object.entries(defaults)) {
+      if (!byCanonical[canonical]) byCanonical[canonical] = alias;
+    }
+    // Kaydedilmiş özelleştirme varsa override et
+    const saved = localStorage.getItem('melp-custom-map-' + lang) || '';
+    for (const line of saved.split('\n')) {
+      const t = line.trim();
+      if (!t || t.startsWith('--')) continue;
+      const eq = t.indexOf('=');
+      if (eq < 1) continue;
+      const canonical = t.slice(0, eq).trim();
+      const alias     = t.slice(eq + 1).trim();
+      if (canonical && alias && Object.prototype.hasOwnProperty.call(byCanonical, canonical))
+        byCanonical[canonical] = alias;
+    }
+    return Object.entries(byCanonical).map(([c, a]) => `${c} = ${a}`).join('\n');
+  } catch(e) { return ''; }
+}
+
 function applyCustomKeywords(lang) {
   const text = localStorage.getItem('melp-custom-map-' + lang) || '';
-  try { MelpEditor.setCustomLanguageMap(lang, parseKeywordText(text)); } catch(e) {}
+  try { MelpEditor.setCustomLanguageMap(lang, _textToNormalizerMap(text)); } catch(e) {}
 }
 
 function applyAllSavedCustomMaps() {
@@ -621,22 +652,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalCancel    = $('btn-lang-modal-cancel');
   const modalTitle     = $('lang-modal-title');
   const customTextarea = $('custom-map-textarea');
-  const defaultsPre    = $('defaults-preview');
 
   function openLangModal() {
     const lang = state.lang;
     modalTitle.textContent = 'Dili Özelleştir — ' + (langSel.options[langSel.selectedIndex]?.text || lang);
-    customTextarea.value = localStorage.getItem('melp-custom-map-' + lang) || '';
-    // Varsayılan eşleşmeleri göster
-    try {
-      const opts = MelpEditor.getLanguageOptions();
-      const defs = MelpEditor.getDefaultKeywords ? MelpEditor.getDefaultKeywords(lang) : null;
-      if (defs) {
-        defaultsPre.textContent = Object.entries(defs).map(([k,v]) => k + ' = ' + v).join('\n');
-      } else {
-        defaultsPre.textContent = '(bu dil için bilgi yok)';
-      }
-    } catch(e) { defaultsPre.textContent = ''; }
+    customTextarea.value = buildDisplayText(lang);
     modalOverlay.classList.remove('hidden');
     customTextarea.focus();
   }
@@ -652,8 +672,30 @@ document.addEventListener('DOMContentLoaded', () => {
     modalSave.addEventListener('click', () => {
       const lang = state.lang;
       const text = customTextarea.value.trim();
-      if (text) { localStorage.setItem('melp-custom-map-' + lang, text); }
-      else      { localStorage.removeItem('melp-custom-map-' + lang); }
+      // Bilinmeyen canonical → o satırı atla, orijinal korunur
+      const knownCanonicals = new Set();
+      try {
+        const defs = MelpEditor.getDefaultKeywords ? MelpEditor.getDefaultKeywords(lang) : {};
+        Object.values(defs).forEach(v => knownCanonicals.add(v));
+      } catch(e) {}
+      // Geçerli satırları filtrele (her iki taraf dolu + canonical tanımlı)
+      const validLines = [];
+      for (const line of text.split('\n')) {
+        const t = line.trim();
+        if (!t || t.startsWith('--')) continue;
+        const eq = t.indexOf('=');
+        if (eq < 1) continue;
+        const canonical = t.slice(0, eq).trim();
+        const alias     = t.slice(eq + 1).trim();
+        if (!canonical || !alias) continue;                          // print = (boş) → atla
+        if (knownCanonicals.size && !knownCanonicals.has(canonical)) continue; // prin = yaz → atla
+        validLines.push(`${canonical} = ${alias}`);
+      }
+      if (validLines.length) {
+        localStorage.setItem('melp-custom-map-' + lang, validLines.join('\n'));
+      } else {
+        localStorage.removeItem('melp-custom-map-' + lang);
+      }
       applyCustomKeywords(lang);
       closeLangModal();
       setStatus('✅ Keyword haritası kaydedildi: ' + lang);
