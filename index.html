@@ -14,7 +14,7 @@
   <!-- ── WASM modu (tarayıcı içi derleme) ─────────────────────────────── -->
   <!-- Railway'e gerek kalmadan tarayıcıda derlemek için aşağıdaki satırı  -->
   <!-- uncomment edin ve app-web.js'de wasmBackend satırını aktifleştirin. -->
-  <script src="wasm/melp_compiler.js"></script>
+  <script src="wasm/melp_compiler.js" onerror="console.warn('WASM yüklenemedi, Railway fallback aktif')"></script>
 
   <style>
     :root {
