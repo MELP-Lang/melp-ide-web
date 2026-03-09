@@ -2,12 +2,6 @@
 // Electron bağımlılıkları kaldırıldı; tarayıcı File API + fetch kullanır
 'use strict';
 
-// ── Backend URL yapılandırması ─────────────────────────────────────────────
-// index.html'deki window.MELP_API_URL ayarından gelir (Railway, Render, vb.)
-const API_URL = (typeof window.MELP_API_URL !== 'undefined' && window.MELP_API_URL)
-  ? window.MELP_API_URL.replace(/\/$/, '')
-  : '';  // Boşsa aynı origin (local dev veya backend aynı sunucuda)
-
 // ── WASM Backend (tarayıcı içi derleme) ────────────────────────────────────
 // melp_compiler.wasm: MeLP kaynak kodu → WASM binary (LLVM olmadan)
 // Aktivasyon: backend.compile() içindeki return satırını değiştir.
@@ -84,21 +78,9 @@ const wasmBackend = {
 };
 
 // ── Backend adaptörü ───────────────────────────────────────────────────────
-// Railway modu: fetch → POST /api/compile
-// WASM modu: wasmBackend (tarayıcı içi, Railway gerektirmez)
-// Geçiş için sadece aktif satırı değiştir.
 const backend = {
   async compile(code, run) {
-    // ── WASM modu (tarayıcı içi derleme, Railway gerektirmez) ────────────
     return wasmBackend.compile(code, run);
-
-    // ── Railway / sunucu modu (yedek, WASM çalışmazsa uncomment yap) ─────
-    // const res  = await fetch(API_URL + '/api/compile', {
-    //   method:  'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body:    JSON.stringify({ code, run }),
-    // });
-    // return res.json();  // { stdout, stderr, exitCode }
   }
 };
 

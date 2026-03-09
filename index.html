@@ -6,15 +6,8 @@
   <title>MELP IDE — Online Editör</title>
   <script src="editor.bundle.js" defer></script>
 
-  <!-- ── Backend URL yapılandırması ──────────────────────────────────────── -->
-  <!-- Railway / Render / Fly.io URL'nizi buraya girin.                      -->
-  <!-- Örnek: window.MELP_API_URL = 'https://melp-api.up.railway.app';      -->
-  <script>window.MELP_API_URL = 'https://melp-compile-server-production.up.railway.app';</script>
-
-  <!-- ── WASM modu (tarayıcı içi derleme) ─────────────────────────────── -->
-  <!-- Railway'e gerek kalmadan tarayıcıda derlemek için aşağıdaki satırı  -->
-  <!-- uncomment edin ve app-web.js'de wasmBackend satırını aktifleştirin. -->
-  <script src="wasm/melp_compiler.js" onerror="console.warn('WASM yüklenemedi, Railway fallback aktif')"></script>
+  <!-- ── WASM modu: tarayıcı içi derleme ──────────────────────────────── -->
+  <script src="wasm/melp_compiler.js" onerror="console.warn('WASM yüklenemedi')"></script>
 
   <style>
     :root {
