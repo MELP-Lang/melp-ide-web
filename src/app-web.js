@@ -89,16 +89,16 @@ const wasmBackend = {
 // Geçiş için sadece aktif satırı değiştir.
 const backend = {
   async compile(code, run) {
-    // ── WASM modu (aktifleştirmek için aşağıdaki satırı uncomment yap) ──
-    // return wasmBackend.compile(code, run);
+    // ── WASM modu (tarayıcı içi derleme, Railway gerektirmez) ────────────
+    return wasmBackend.compile(code, run);
 
-    // ── Railway / sunucu modu (varsayılan) ───────────────────────────────
-    const res  = await fetch(API_URL + '/api/compile', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ code, run }),
-    });
-    return res.json();  // { stdout, stderr, exitCode }
+    // ── Railway / sunucu modu (yedek, WASM çalışmazsa uncomment yap) ─────
+    // const res  = await fetch(API_URL + '/api/compile', {
+    //   method:  'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body:    JSON.stringify({ code, run }),
+    // });
+    // return res.json();  // { stdout, stderr, exitCode }
   }
 };
 

@@ -11,6 +11,11 @@
   <!-- Örnek: window.MELP_API_URL = 'https://melp-api.up.railway.app';      -->
   <script>window.MELP_API_URL = 'https://melp-compile-server-production.up.railway.app';</script>
 
+  <!-- ── WASM modu (tarayıcı içi derleme) ─────────────────────────────── -->
+  <!-- Railway'e gerek kalmadan tarayıcıda derlemek için aşağıdaki satırı  -->
+  <!-- uncomment edin ve app-web.js'de wasmBackend satırını aktifleştirin. -->
+  <script src="wasm/melp_compiler.js"></script>
+
   <style>
     :root {
       --bg:             #1e1e1e;
