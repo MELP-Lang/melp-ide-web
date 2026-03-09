@@ -281,18 +281,76 @@ const EXAMPLES = [
     label: 'Try / Hata',
     code: `function bolme(numeric a; numeric b) as numeric\n    if b == 0 then\n        throw "sifira bolme!"\n    end_if\n    return a / b\nend_function\n\nfunction main()\n    try\n        numeric r = bolme(10; 0)\n        print(r)\n    catch e\n        print("hata: sifira bolme")\n    end_try\n    return 0\nend_function\n`,
   },
+  // ── Türkçe + PMPL ──────────────────────────────────────────────────────
+  {
+    label: 'Merhaba (TR)',
+    lang: 'turkish', syntax: 'pmpl',
+    code: `fonksiyon ana()\n    print("Merhaba, Dünya!")\nfonksiyon_sonu\n`,
+  },
+  {
+    label: 'Fibonacci (TR)',
+    lang: 'turkish', syntax: 'pmpl',
+    code: `fonksiyon fib(n olarak sayı) olarak sayı\n    eğer n <= 1 sonra\n        döndür n\n    end_if\n    döndür fib(n - 1) + fib(n - 2)\nfonksiyon_sonu\n\nfonksiyon ana()\n    için i = 0 to 10\n        print(fib(i))\n    end_for\nfonksiyon_sonu\n`,
+  },
+  // ── English + VB.NET ───────────────────────────────────────────────────
+  {
+    label: 'Merhaba (VB)',
+    lang: 'english', syntax: 'vbnet',
+    code: `Sub Main()\n    Print("Merhaba, Dünya!")\nEnd Sub\n`,
+  },
+  {
+    label: 'Topla (VB)',
+    lang: 'english', syntax: 'vbnet',
+    code: `Function Topla(a As numeric; b As numeric) As numeric\n    Return a + b\nEnd Function\n\nSub Main()\n    If Topla(3; 5) > 7 Then\n        Print("büyük")\n    End If\nEnd Sub\n`,
+  },
+  // ── English + Python-Style ─────────────────────────────────────────────
+  {
+    label: 'Merhaba (PY)',
+    lang: 'english', syntax: 'python_style',
+    code: `def main():\n    print("Merhaba, Dünya!")\n`,
+  },
+  {
+    label: 'Topla (PY)',
+    lang: 'english', syntax: 'python_style',
+    code: `def topla(a, b):\n    return a + b\n\ndef main():\n    sonuc = topla(3; 5)\n    if sonuc > 7:\n        print("büyük")\n    else:\n        print("küçük")\n`,
+  },
 ];
+
+const LANG_SHORT = { english:'EN', turkish:'TR', russian:'RU', arabic:'AR', chinese:'ZH' };
+const SYN_SHORT  = { pmpl:'PMPL', c_style:'C', python_style:'PY', go_style:'Go', rust_style:'RS', vbnet:'VB' };
 
 function loadExamplesPanel() {
   const container = $('examples-list');
   if (!container) return;
   EXAMPLES.forEach(ex => {
     const el = document.createElement('div');
-    el.className  = 'tree-file';
-    el.textContent = ex.label;
+    el.className = 'tree-file';
     el.title = ex.label + '.mlp';
+
+    const langKey = ex.lang   || 'english';
+    const synKey  = ex.syntax || 'pmpl';
+
+    const labelSpan = document.createElement('span');
+    labelSpan.textContent = ex.label;
+    el.appendChild(labelSpan);
+
+    if (langKey !== 'english' || synKey !== 'pmpl') {
+      const badge = document.createElement('span');
+      badge.className   = 'example-badge';
+      badge.textContent = (LANG_SHORT[langKey] || langKey.slice(0,2).toUpperCase())
+                        + ' ' + (SYN_SHORT[synKey] || synKey.toUpperCase());
+      el.appendChild(badge);
+    }
+
     el.addEventListener('click', () => {
       openTab(ex.label + '.mlp', ex.code);
+      // Dil / sözdizimi seçicilerini bu örneğe uyarla
+      state.lang   = langKey;
+      state.syntax = synKey;
+      localStorage.setItem('melp-lang',   state.lang);
+      localStorage.setItem('melp-syntax', state.syntax);
+      const ls = $('sel-lang');   if (ls) ls.value = state.lang;
+      const ss = $('sel-syntax'); if (ss) ss.value = state.syntax;
     });
     container.appendChild(el);
   });
