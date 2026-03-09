@@ -178,14 +178,26 @@ function activateTab(idx) {
 }
 
 function closeTab(idx) {
+  // splice'dan önce mevcut içeriği kaydet
+  if (state.activeTab !== null && state.editor) {
+    state.tabs[state.activeTab].content = state.editor.getValue();
+  }
   state.tabs.splice(idx, 1);
   if (state.tabs.length === 0) {
     state.activeTab = null;
     state.editor.setValue('');
+    renderTabs();
   } else {
-    activateTab(Math.min(idx, state.tabs.length - 1));
+    // activeTab index'ini ayarla: kapatılan sekme öncesindeyse kaydır
+    let newActive = state.activeTab;
+    if (idx < state.activeTab) {
+      newActive = state.activeTab - 1;
+    } else if (idx === state.activeTab) {
+      newActive = Math.min(idx, state.tabs.length - 1);
+    }
+    state.activeTab = null; // activateTab içinde çift kayıt olmasın
+    activateTab(newActive);
   }
-  renderTabs();
 }
 
 function markModified() {
