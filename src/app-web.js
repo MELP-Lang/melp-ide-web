@@ -108,11 +108,86 @@ const outputEl   = $('output-panel');
 
 // ── Editör başlat ──────────────────────────────────────────────────────────
 const DEFAULT_CONTENT =
-`-- Merhaba, MELP!
+`#lang english
+#syntax pmpl
+
+-- Merhaba, MELP!
 function main()
     print("Merhaba, Dünya!")
 end_function
 `;
+
+// ── #lang / #syntax direktif yardımcıları ─────────────────────────────────────
+function parseAndStripDirectives(code) {
+  const lines = code.split('\n');
+  let lang = null, syntax = null;
+  const kept = [];
+  let scanning = true;
+  for (let i = 0; i < lines.length; i++) {
+    const tr = lines[i].trim();
+    if (scanning) {
+      if (tr === '' || tr.startsWith('--')) { kept.push(lines[i]); continue; }
+      if (tr.startsWith('#lang '))   { lang   = tr.slice(6).trim();  continue; }
+      if (tr.startsWith('#syntax ')) { syntax = tr.slice(8).trim();  continue; }
+      scanning = false;
+    }
+    kept.push(lines[i]);
+  }
+  return { lang, syntax, clean: kept.join('\n') };
+}
+
+function buildDirectiveHeader(lang, syntax) {
+  return `#lang ${lang || 'english'}\n#syntax ${syntax || 'pmpl'}\n`;
+}
+
+// Editördeki direktiflerden dropdown + state.lang/syntax güncelle (setValue yok)
+function syncDropdownsFromEditorContent() {
+  if (!state.editor) return;
+  const { lang, syntax } = parseAndStripDirectives(state.editor.getValue());
+  if (lang && lang !== state.lang) {
+    state.lang = lang;
+    localStorage.setItem('melp-lang', lang);
+    const ls = $('sel-lang'); if (ls) ls.value = lang;
+  }
+  if (syntax && syntax !== state.syntax) {
+    state.syntax = syntax;
+    localStorage.setItem('melp-syntax', syntax);
+    const ss = $('sel-syntax'); if (ss) ss.value = syntax;
+  }
+}
+
+// Dropdown değişince editorün en üstündeki direktifleri güncelle
+function updateDirectivesInEditor() {
+  if (!state.editor || state.activeTab === null) return;
+  const { clean } = parseAndStripDirectives(state.editor.getValue());
+  const newCode = buildDirectiveHeader(state.lang, state.syntax) + clean;
+  state.editor.setValue(newCode);
+  state.tabs[state.activeTab].content = newCode;
+}
+
+// ── Özel keyword haritası ─────────────────────────────────────────────────
+function parseKeywordText(text) {
+  const map = {};
+  for (const line of text.split('\n')) {
+    const t = line.trim();
+    if (!t || t.startsWith('--')) continue;
+    const eq = t.indexOf('=');
+    if (eq < 1) continue;
+    const k = t.slice(0, eq).trim();
+    const v = t.slice(eq + 1).trim();
+    if (k && v) map[k] = v;
+  }
+  return map;
+}
+
+function applyCustomKeywords(lang) {
+  const text = localStorage.getItem('melp-custom-map-' + lang) || '';
+  try { MelpEditor.setCustomLanguageMap(lang, parseKeywordText(text)); } catch(e) {}
+}
+
+function applyAllSavedCustomMaps() {
+  ['turkish','russian','arabic','chinese'].forEach(applyCustomKeywords);
+}
 
 function initEditor() {
   state.editor = MelpEditor.createEditor(editorEl, DEFAULT_CONTENT);
@@ -154,6 +229,7 @@ function activateTab(idx) {
   state.activeTab = idx;
   const tab = state.tabs[idx];
   state.editor.setValue(tab.content);
+  syncDropdownsFromEditorContent();
   state.editor.focus();
   renderTabs();
   setStatus(tab.label);
@@ -214,7 +290,7 @@ function escHtml(s) {
 
 // ── Dosya işlemleri (File API) ─────────────────────────────────────────────
 function newFile() {
-  openTab(null, '');
+  openTab(null, buildDirectiveHeader(state.lang, state.syntax));
   setStatus('Yeni dosya');
 }
 
@@ -343,14 +419,9 @@ function loadExamplesPanel() {
     }
 
     el.addEventListener('click', () => {
-      openTab(ex.label + '.mlp', ex.code);
-      // Dil / sözdizimi seçicilerini bu örneğe uyarla
-      state.lang   = langKey;
-      state.syntax = synKey;
-      localStorage.setItem('melp-lang',   state.lang);
-      localStorage.setItem('melp-syntax', state.syntax);
-      const ls = $('sel-lang');   if (ls) ls.value = state.lang;
-      const ss = $('sel-syntax'); if (ss) ss.value = state.syntax;
+      // Direktifleri kodun başına ekle — activateTab → syncDropdownsFromEditorContent bunları okuyacak
+      const header = buildDirectiveHeader(langKey, synKey);
+      openTab(ex.label + '.mlp', header + ex.code);
     });
     container.appendChild(el);
   });
@@ -358,14 +429,19 @@ function loadExamplesPanel() {
 
 // ── Derleme & çalıştırma ──────────────────────────────────────────────
 async function compile(andRun = false) {
-  let code = state.editor.getValue();
+  const raw = state.editor.getValue();
+  // Dosya başındaki #lang / #syntax direktiflerini oku ve soy (WASM bunları anlamaz)
+  const { lang: fileLang, syntax: fileSyntax, clean } = parseAndStripDirectives(raw);
+  const effectiveLang   = fileLang   || state.lang;
+  const effectiveSyntax = fileSyntax || state.syntax;
 
+  let code = clean;
   let normInfo = '';
   // Normalleştirme: Türkçe/VBNet vb. → MELP standart sözdizimi
-  if (state.lang !== 'english' || state.syntax !== 'pmpl') {
+  if (effectiveLang !== 'english' || effectiveSyntax !== 'pmpl') {
     try {
-      code = MelpEditor.normalize(code, state.lang, state.syntax);
-      normInfo = `🔄 Normalleştirme: dil=${state.lang} | sözdizimi=${state.syntax}\n`;
+      code = MelpEditor.normalize(code, effectiveLang, effectiveSyntax);
+      normInfo = `🔄 Normalleştirme: dil=${effectiveLang} | sözdizimi=${effectiveSyntax}\n`;
     } catch (e) {
       // Normalizer bulunamazsa devam et
     }
@@ -526,9 +602,61 @@ document.addEventListener('DOMContentLoaded', () => {
   langSel.addEventListener('change', () => {
     state.lang = langSel.value;
     localStorage.setItem('melp-lang', state.lang);
+    updateDirectivesInEditor();
   });
   syntaxSel.addEventListener('change', () => {
     state.syntax = syntaxSel.value;
     localStorage.setItem('melp-syntax', state.syntax);
+    updateDirectivesInEditor();
   });
+
+  // Başlangıçta kaydedilmiş özel haritaları uygula
+  applyAllSavedCustomMaps();
+
+  // ── Dil Düzenle modali ───────────────────────────────────────────────
+  const langEditBtn    = $('btn-lang-edit');
+  const modalOverlay   = $('lang-modal-overlay');
+  const modalClose     = $('btn-lang-modal-close');
+  const modalSave      = $('btn-lang-modal-save');
+  const modalCancel    = $('btn-lang-modal-cancel');
+  const modalTitle     = $('lang-modal-title');
+  const customTextarea = $('custom-map-textarea');
+  const defaultsPre    = $('defaults-preview');
+
+  function openLangModal() {
+    const lang = state.lang;
+    modalTitle.textContent = 'Dili Özelleştir — ' + (langSel.options[langSel.selectedIndex]?.text || lang);
+    customTextarea.value = localStorage.getItem('melp-custom-map-' + lang) || '';
+    // Varsayılan eşleşmeleri göster
+    try {
+      const opts = MelpEditor.getLanguageOptions();
+      const defs = MelpEditor.getDefaultKeywords ? MelpEditor.getDefaultKeywords(lang) : null;
+      if (defs) {
+        defaultsPre.textContent = Object.entries(defs).map(([k,v]) => k + ' = ' + v).join('\n');
+      } else {
+        defaultsPre.textContent = '(bu dil için bilgi yok)';
+      }
+    } catch(e) { defaultsPre.textContent = ''; }
+    modalOverlay.classList.remove('hidden');
+    customTextarea.focus();
+  }
+
+  function closeLangModal() { modalOverlay.classList.add('hidden'); }
+
+  if (langEditBtn) langEditBtn.addEventListener('click', openLangModal);
+  if (modalClose)  modalClose.addEventListener('click',  closeLangModal);
+  if (modalCancel) modalCancel.addEventListener('click', closeLangModal);
+  modalOverlay?.addEventListener('click', (e) => { if (e.target === modalOverlay) closeLangModal(); });
+
+  if (modalSave) {
+    modalSave.addEventListener('click', () => {
+      const lang = state.lang;
+      const text = customTextarea.value.trim();
+      if (text) { localStorage.setItem('melp-custom-map-' + lang, text); }
+      else      { localStorage.removeItem('melp-custom-map-' + lang); }
+      applyCustomKeywords(lang);
+      closeLangModal();
+      setStatus('✅ Keyword haritası kaydedildi: ' + lang);
+    });
+  }
 });

@@ -250,6 +250,49 @@
       flex-shrink: 0; letter-spacing: 0.3px; white-space: nowrap;
     }
 
+    /* ── Modal ──────────────────────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+      display: flex; align-items: center; justify-content: center; z-index: 1000;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-box {
+      background: var(--bg); color: var(--fg); border: 1px solid var(--border);
+      border-radius: 8px; width: min(520px, 92vw); max-height: 80vh;
+      display: flex; flex-direction: column; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      font-size: 13px; font-weight: 600;
+    }
+    .modal-close {
+      background: transparent; border: none; color: var(--fg); cursor: pointer;
+      font-size: 18px; line-height: 1; opacity: 0.6; padding: 0 4px;
+    }
+    .modal-close:hover { opacity: 1; }
+    .modal-body { padding: 14px 16px; overflow-y: auto; flex: 1; }
+    .modal-hint { font-size: 11px; opacity: 0.7; margin: 0 0 10px; line-height: 1.5; }
+    .modal-hint code { background: var(--btn-bg); padding: 1px 4px; border-radius: 3px; font-size: 11px; }
+    .modal-textarea {
+      width: 100%; box-sizing: border-box; height: 160px; resize: vertical;
+      background: var(--btn-bg); color: var(--fg); border: 1px solid var(--border);
+      border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      padding: 8px; outline: none; line-height: 1.6;
+    }
+    .modal-textarea:focus { border-color: var(--accent); }
+    .modal-defaults { margin-top: 12px; font-size: 11px; }
+    .modal-defaults summary { cursor: pointer; opacity: 0.6; }
+    .modal-defaults-pre {
+      margin: 6px 0 0; max-height: 160px; overflow-y: auto;
+      background: var(--btn-bg); border: 1px solid var(--border);
+      border-radius: 4px; padding: 8px; font-size: 11px; line-height: 1.5;
+    }
+    .modal-footer {
+      padding: 10px 16px; border-top: 1px solid var(--border);
+      display: flex; gap: 8px; justify-content: flex-end;
+    }
+
     /* ── Editör alanı ───────────────────────────────────────────────────── */
     #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
@@ -377,6 +420,7 @@
       <span class="tb-select-label">Sözdizimi</span>
       <select id="sel-syntax" class="tb-select"></select>
     </div>
+    <button class="tb-btn" id="btn-lang-edit" title="Bu dilin keyword eşleşmelerini özelleştir">✏ Dil Düzenle</button>
     <div class="tb-sep"></div>
     <button class="tb-btn primary" id="btn-compile" title="Derle (Ctrl+B)">⚙ Derle</button>
     <button class="tb-btn run"     id="btn-run"     title="Çalıştır (F5)">▶ Çalıştır</button>
@@ -418,5 +462,32 @@
   </div>
 
   <script src="app-web.js" defer></script>
+
+  <!-- ── Dil düzenle modali ───────────────────────────────────────── -->
+  <div id="lang-modal-overlay" class="modal-overlay hidden">
+    <div id="lang-modal" class="modal-box">
+      <div class="modal-header">
+        <span id="lang-modal-title">Dili Özelleştir</span>
+        <button id="btn-lang-modal-close" class="modal-close">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-hint">
+          Seçili dil için özel keyword eşleşmeleri ekleyin ya da varsayılanları geçersiz kılın.<br>
+          Her satıra bir eşleşme: <code>senkelime = canonical</code><br>
+          Örnek: <code>yaz = print</code>&nbsp;&nbsp;<code>ana = main</code>&nbsp;&nbsp;<code>say = numeric</code>
+        </p>
+        <textarea id="custom-map-textarea" class="modal-textarea"
+          placeholder="-- Özel eşleşmeleriniz buraya&#10;yaz = print&#10;ana = main"></textarea>
+        <details class="modal-defaults">
+          <summary>Varsayılan eşleşmeler (salt okunur)</summary>
+          <pre id="defaults-preview" class="modal-defaults-pre"></pre>
+        </details>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-lang-modal-save" class="tb-btn primary">💾 Kaydet</button>
+        <button id="btn-lang-modal-cancel" class="tb-btn">İptal</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

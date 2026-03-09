@@ -5,6 +5,12 @@
 import dillerData from './diller.json';
 import syntaxData from './syntax.json';
 
+// Kullanıcı tanımlı özel keyword haritaları (localStorage'den yüklenir)
+const _customMaps = {};
+export function setCustomLanguageMap(lang, mapObj) {
+  _customMaps[lang] = mapObj || {};
+}
+
 // ── Yardımcılar ───────────────────────────────────────────────────────────
 function escRe(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -17,7 +23,9 @@ export function normalizeLanguage(code, lang) {
   const langDef = dillerData.languages[lang];
   if (!langDef || !langDef.enabled) return code;
 
-  const keywords = langDef.keywords || {};
+  const baseKeywords = langDef.keywords || {};
+  // Özel harita base'in üzerine yazılır (kullanıcı tanımlı öncelikli)
+  const keywords = { ...baseKeywords, ...(_customMaps[lang] || {}) };
   // Uzun anahtar kelimeleri önce uygula (greedy match)
   const sorted = Object.entries(keywords)
     .sort((a, b) => b[0].length - a[0].length);
@@ -79,4 +87,9 @@ export function getSyntaxOptions() {
   return Object.entries(syntaxData.syntaxes)
     .filter(([, v]) => v.enabled)
     .map(([id, v]) => ({ id, name: v.description || id }));
+}
+
+export function getDefaultKeywords(lang) {
+  const langDef = dillerData.languages[lang];
+  return langDef ? (langDef.keywords || {}) : {};
 }
