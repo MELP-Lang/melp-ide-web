@@ -177,7 +177,7 @@ const EXAMPLES = [
   },
   {
     label: 'Döngüler',
-    code: `function main()\n    -- while örneği\n    numeric i = 0\n    while i < 5\n        print(i)\n        i = i + 1\n    end_while\n\n    -- for örneği\n    for j = 1 to 5\n        print(j * j)\n    end_for\nend_function\n`,
+    code: `function main()\n    -- while örneği\n    let i = 0\n    while i < 5\n        print(i)\n        i = i + 1\n    end_while\n\n    -- for örneği\n    for j = 1 to 5\n        print(j * j)\n    end_for\nend_function\n`,
   },
   {
     label: 'Struct',
