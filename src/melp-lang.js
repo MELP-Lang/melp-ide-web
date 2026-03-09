@@ -3,6 +3,7 @@
 
 import { StreamLanguage, HighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
+import { completeFromList, snippetCompletion } from '@codemirror/autocomplete';
 
 // ── Anahtar kelimeler ──────────────────────────────────────────────────────
 const KEYWORDS = new Set([
@@ -139,6 +140,45 @@ const melpHighlight = HighlightStyle.define([
   { tag: t.lineComment,       color: '#5c6370', fontStyle: 'italic' },
   { tag: t.blockComment,      color: '#5c6370', fontStyle: 'italic' },
   { tag: t.variableName,      color: '#abb2bf' },
+]);
+
+// ── Autocomplete kaynağı ─────────────────────────────────────────────────
+const melpSnippets = [
+  snippetCompletion('function ${name}()\n\t${}\nend_function',
+    { label: 'function', type: 'keyword', detail: 'fonksiyon bloğu', boost: 10 }),
+  snippetCompletion('function ${name}() as ${type}\n\t${}\nend_function',
+    { label: 'function...as', type: 'keyword', detail: 'dönüş tipli fonksiyon', boost: 9 }),
+  snippetCompletion('if ${koşul} then\n\t${}\nend_if',
+    { label: 'if', type: 'keyword', detail: 'koşul bloğu', boost: 10 }),
+  snippetCompletion('if ${koşul} then\n\t${then}\nelse\n\t${}\nend_if',
+    { label: 'if...else', type: 'keyword', detail: 'if/else bloğu', boost: 9 }),
+  snippetCompletion('while ${koşul}\n\t${}\nend_while',
+    { label: 'while', type: 'keyword', detail: 'döngü bloğu', boost: 10 }),
+  snippetCompletion('for ${i} = ${başlangıç} to ${bitiş}\n\t${}\nend_for',
+    { label: 'for', type: 'keyword', detail: 'for döngüsü', boost: 10 }),
+  snippetCompletion('struct ${Ad}\n\t${alan} as ${tip}\nend_struct',
+    { label: 'struct', type: 'keyword', detail: 'yapı tanımı', boost: 8 }),
+  snippetCompletion('enum ${Ad}\n\t${variant}\nend_enum',
+    { label: 'enum', type: 'keyword', detail: 'enum tanımı', boost: 8 }),
+  snippetCompletion('match ${değer}\n\tcase ${}: ${}\nend_match',
+    { label: 'match', type: 'keyword', detail: 'desen eşleştirme', boost: 8 }),
+  snippetCompletion('try\n\t${}\ncatch ${e}\n\t${}\nend_try',
+    { label: 'try', type: 'keyword', detail: 'hata yakalama', boost: 8 }),
+  snippetCompletion('scope ${ad}\n\t${}\nend_scope',
+    { label: 'scope', type: 'keyword', detail: 'kapsam bloğu', boost: 7 }),
+  snippetCompletion('module ${Ad}\n\t${}\nend_module',
+    { label: 'module', type: 'keyword', detail: 'modül tanımı', boost: 7 }),
+];
+
+const melpKeywordItems = [
+  ...Array.from(KEYWORDS).map(k => ({ label: k, type: 'keyword' })),
+  ...Array.from(BUILTINS).map(b => ({ label: b, type: 'function' })),
+  ...Array.from(TYPES).map(tp => ({ label: tp, type: 'type' })),
+];
+
+export const melpCompletionSource = completeFromList([
+  ...melpSnippets,
+  ...melpKeywordItems,
 ]);
 
 export const melpLanguageExtension = [

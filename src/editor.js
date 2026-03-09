@@ -13,7 +13,8 @@ import { lintKeymap, linter, lintGutter }   from '@codemirror/lint';
 import { oneDark }                            from '@codemirror/theme-one-dark';
 import { indentOnInput, bracketMatching,
          foldGutter, foldKeymap }            from '@codemirror/language';
-import { melpLanguageExtension }             from './melp-lang.js';
+import { melpLanguageExtension,
+         melpCompletionSource }              from './melp-lang.js';
 
 // ── Renk teması ────────────────────────────────────────────────────────────
 const melpTheme = EditorView.theme({
@@ -47,6 +48,46 @@ const melpTheme = EditorView.theme({
     background: '#2c313c',
     color: '#fff',
   },
+  // ── Arama paneli ──────────────────────────────────────────────────────
+  '.cm-panel': {
+    background: '#21252b',
+    borderTop: '1px solid #181a1f',
+    color: '#abb2bf',
+    padding: '6px 10px',
+  },
+  '.cm-panel input': {
+    background: '#1e1e1e',
+    border: '1px solid #3e4451',
+    borderRadius: '3px',
+    color: '#abb2bf',
+    padding: '2px 6px',
+    outline: 'none',
+    marginRight: '4px',
+  },
+  '.cm-panel input:focus': {
+    borderColor: '#528bff',
+  },
+  '.cm-panel button': {
+    background: '#2c313c',
+    border: '1px solid #3e4451',
+    borderRadius: '3px',
+    color: '#abb2bf',
+    cursor: 'pointer',
+    padding: '2px 8px',
+    marginRight: '4px',
+  },
+  '.cm-panel button:hover': {
+    background: '#3e4451',
+  },
+  '.cm-panel label': {
+    color: '#5c6370',
+    marginRight: '8px',
+    fontSize: '12px',
+  },
+  '.cm-panel .cm-panel-close': {
+    float: 'right',
+    cursor: 'pointer',
+  },
 });
 
 // ── Lint yapılandırması (gelecekte LSP diagnostics bağlanacak) ──────────────
@@ -71,7 +112,7 @@ export function createEditor(container, initialContent = '') {
       // Davranış
       history(),
       indentOnInput(),
-      autocompletion(),
+      autocompletion({ override: [melpCompletionSource] }),
       highlightSelectionMatches(),
       // Klavye
       keymap.of([
