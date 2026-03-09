@@ -3,18 +3,19 @@
   "title": "MELP Language Mapping Configuration",
   "description": "Maps keywords from various languages to English PMPL",
   "version": "1.0.0",
-  
   "languages": {
     "english": {
       "enabled": true,
       "description": "English (default, no translation needed)",
       "keywords": {}
     },
-    
     "turkish": {
       "enabled": true,
       "description": "Turkish language support",
       "keywords": {
+        "ana": "main",
+        "yaz": "print",
+        "yazdır": "print",
         "fonksiyon_sonu": "end_function",
         "işlev_sonu": "end_function",
         "fonksiyon": "function",
@@ -59,7 +60,6 @@
         "paket": "package"
       }
     },
-    
     "russian": {
       "enabled": true,
       "description": "Russian language support",
@@ -88,7 +88,6 @@
         "модуль": "module"
       }
     },
-    
     "arabic": {
       "enabled": false,
       "description": "Arabic language support (planned)",
@@ -105,7 +104,6 @@
         "خطأ": "false"
       }
     },
-    
     "chinese": {
       "enabled": false,
       "description": "Chinese language support (planned)",
@@ -123,7 +121,6 @@
       }
     }
   },
-  
   "meta": {
     "author": "MELP Team",
     "date": "2026-01-28",
