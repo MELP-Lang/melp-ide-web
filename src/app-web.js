@@ -375,6 +375,25 @@ document.addEventListener('DOMContentLoaded', () => {
   setStatus('MELP IDE — Hazır');
   updateCursorInfo();
 
+  // Dosya çift tıklamayla açıldıysa: ?open=dosya.mlp
+  const urlParams = new URLSearchParams(window.location.search);
+  const openName  = urlParams.get('open');
+  if (openName) {
+    fetch('tmp_open.mlp?t=' + Date.now())
+      .then(r => r.ok ? r.text() : Promise.reject(r.status))
+      .then(content => {
+        // Başlangıçta açılan boş untitled sekmeyi kapat
+        if (state.tabs.length === 1 && !state.tabs[0].modified &&
+            state.tabs[0].content.trim() === DEFAULT_CONTENT.trim()) {
+          state.tabs = [];
+          state.activeTab = null;
+        }
+        openTab(openName, content);
+        history.replaceState(null, '', '/');
+      })
+      .catch(() => setStatus('Dosya açılamadı: ' + openName));
+  }
+
   // Buton bağlamaları
   $('btn-new').addEventListener('click', newFile);
   $('btn-open').addEventListener('click', openFileFromDisk);

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="text/x-melp">
+    <comment>MELP kaynak dosyası</comment>
+    <comment xml:lang="tr">MELP kaynak dosyası</comment>
+    <glob pattern="*.mlp"/>
+    <icon name="text-x-melp"/>
+  </mime-type>
+</mime-info>
