@@ -10,7 +10,7 @@ import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
 import { autocompletion, completionKeymap,
          closeBrackets }                     from '@codemirror/autocomplete';
 import { lintKeymap, linter, lintGutter }   from '@codemirror/lint';
-import { oneDark }                            from '@codemirror/theme-one-dark';
+import { oneDark, oneDarkHighlightStyle } from '@codemirror/theme-one-dark';
 import { indentOnInput, bracketMatching,
          foldGutter, foldKeymap,
          syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language';
@@ -325,10 +325,10 @@ const CM_THEMES = {
   'solarized': [oneDark, cmSolarizedTheme],
   'pink':      [syntaxHighlighting(defaultHighlightStyle), cmPinkTheme],
   'blue-kids': [syntaxHighlighting(defaultHighlightStyle), cmBlueKidsTheme],
-  'purple':    [oneDark, cmPurpleTheme],
-  'magenta':   [oneDark, cmMagentaTheme],
-  'fuchsia':   [oneDark, cmFuchsiaTheme],
-  'cyan':      [oneDark, cmCyanTheme],
+  'purple':    [syntaxHighlighting(oneDarkHighlightStyle), cmPurpleTheme],
+  'magenta':   [syntaxHighlighting(oneDarkHighlightStyle), cmMagentaTheme],
+  'fuchsia':   [syntaxHighlighting(oneDarkHighlightStyle), cmFuchsiaTheme],
+  'cyan':      [syntaxHighlighting(oneDarkHighlightStyle), cmCyanTheme],
 };
 
 // ── Dinamik compartment'lar ──────────────────────────────────────────────────
