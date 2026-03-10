@@ -527,7 +527,7 @@ function updateCursorInfo() {
 }
 
 // ── Renk paleti ──────────────────────────────────────────────────────────
-const PALETTE_CLASSES = ['light', 'dracula', 'monokai', 'nord', 'solarized', 'pink', 'blue-kids'];
+const PALETTE_CLASSES = ['light', 'dracula', 'monokai', 'nord', 'solarized', 'pink', 'blue-kids', 'purple', 'magenta', 'fuchsia', 'cyan'];
 function applyPalette(theme) {
   document.body.classList.remove(...PALETTE_CLASSES);
   if (theme) document.body.classList.add(theme);
