@@ -184,6 +184,94 @@
       --btn-border:     rgba(2,119,189,0.2);
       --btn-hover:      rgba(2,119,189,0.15);
     }
+    body.purple {
+      --bg:             #1a0a2e;
+      --fg:             #e1d5f7;
+      --titlebar-bg:    #2d1b4e;
+      --sidebar-bg:     #2d1b4e;
+      --sidebar-fg:     #e1d5f7;
+      --sidebar-hdr-fg: #ce93d8;
+      --tabs-bg:        #2d1b4e;
+      --tab-fg:         #ce93d8;
+      --tab-active-bg:  #1a0a2e;
+      --tab-active-fg:  #e1d5f7;
+      --statusbar-bg:   #7b1fa2;
+      --statusbar-fg:   #fff;
+      --hover-bg:       #3d2060;
+      --border:         #7b2fbe;
+      --accent:         #9c27b0;
+      --modified:       #ffab40;
+      --output-bg:      #220d38;
+      --btn-bg:         rgba(156,39,176,0.1);
+      --btn-border:     rgba(156,39,176,0.25);
+      --btn-hover:      rgba(156,39,176,0.18);
+    }
+    body.magenta {
+      --bg:             #1a0014;
+      --fg:             #f5d0ff;
+      --titlebar-bg:    #2e0028;
+      --sidebar-bg:     #2e0028;
+      --sidebar-fg:     #f5d0ff;
+      --sidebar-hdr-fg: #ea80fc;
+      --tabs-bg:        #2e0028;
+      --tab-fg:         #ea80fc;
+      --tab-active-bg:  #1a0014;
+      --tab-active-fg:  #f5d0ff;
+      --statusbar-bg:   #aa00ff;
+      --statusbar-fg:   #fff;
+      --hover-bg:       #3d0040;
+      --border:         #bf00ff;
+      --accent:         #e040fb;
+      --modified:       #ffcc02;
+      --output-bg:      #200018;
+      --btn-bg:         rgba(224,64,251,0.1);
+      --btn-border:     rgba(224,64,251,0.25);
+      --btn-hover:      rgba(224,64,251,0.18);
+    }
+    body.fuchsia {
+      --bg:             #0f001a;
+      --fg:             #ffd6ec;
+      --titlebar-bg:    #220030;
+      --sidebar-bg:     #220030;
+      --sidebar-fg:     #ffd6ec;
+      --sidebar-hdr-fg: #ff80ab;
+      --tabs-bg:        #220030;
+      --tab-fg:         #ff80ab;
+      --tab-active-bg:  #0f001a;
+      --tab-active-fg:  #ffd6ec;
+      --statusbar-bg:   #c51162;
+      --statusbar-fg:   #fff;
+      --hover-bg:       #2e0040;
+      --border:         #f50057;
+      --accent:         #f50057;
+      --modified:       #ffab40;
+      --output-bg:      #140020;
+      --btn-bg:         rgba(245,0,87,0.1);
+      --btn-border:     rgba(245,0,87,0.25);
+      --btn-hover:      rgba(245,0,87,0.18);
+    }
+    body.cyan {
+      --bg:             #001a1a;
+      --fg:             #b2f0f0;
+      --titlebar-bg:    #002b2b;
+      --sidebar-bg:     #002b2b;
+      --sidebar-fg:     #b2f0f0;
+      --sidebar-hdr-fg: #4dd0e1;
+      --tabs-bg:        #002b2b;
+      --tab-fg:         #4dd0e1;
+      --tab-active-bg:  #001a1a;
+      --tab-active-fg:  #b2f0f0;
+      --statusbar-bg:   #00838f;
+      --statusbar-fg:   #fff;
+      --hover-bg:       #003838;
+      --border:         #00bcd4;
+      --accent:         #00bcd4;
+      --modified:       #ffd740;
+      --output-bg:      #002020;
+      --btn-bg:         rgba(0,188,212,0.1);
+      --btn-border:     rgba(0,188,212,0.25);
+      --btn-hover:      rgba(0,188,212,0.18);
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       display: flex; flex-direction: column; height: 100vh;
@@ -392,8 +480,12 @@
         <div class="palette-item" data-theme="monokai"><span class="palette-swatch" style="background:#272822;border-color:#f92672"></span>Monokai</div>
         <div class="palette-item" data-theme="nord"><span class="palette-swatch" style="background:#2e3440;border-color:#88c0d0"></span>Nord</div>
         <div class="palette-item" data-theme="solarized"><span class="palette-swatch" style="background:#002b36;border-color:#268bd2"></span>Solarized</div>
-        <div class="palette-item" data-theme="pink"><span class="palette-swatch" style="background:#fff0f5;border-color:#c2185b"></span>🌸 Pembe</div>
-        <div class="palette-item" data-theme="blue-kids"><span class="palette-swatch" style="background:#e8f4fd;border-color:#0277bd"></span>🔵 Mavi Çocuk</div>
+        <div class="palette-item" data-theme="pink"><span class="palette-swatch" style="background:#fff0f5;border-color:#c2185b"></span>Pink</div>
+        <div class="palette-item" data-theme="blue-kids"><span class="palette-swatch" style="background:#e8f4fd;border-color:#0277bd"></span>Blue</div>
+        <div class="palette-item" data-theme="purple"><span class="palette-swatch" style="background:#1a0a2e;border-color:#9c27b0"></span>Purple</div>
+        <div class="palette-item" data-theme="magenta"><span class="palette-swatch" style="background:#1a0014;border-color:#e040fb"></span>Magenta</div>
+        <div class="palette-item" data-theme="fuchsia"><span class="palette-swatch" style="background:#0f001a;border-color:#f50057"></span>Fuchsia</div>
+        <div class="palette-item" data-theme="cyan"><span class="palette-swatch" style="background:#001a1a;border-color:#00bcd4"></span>Cyan</div>
         <hr class="ap-divider">
         <div class="ap-section-label">Yazı Boyutu</div>
         <div class="font-size-row">

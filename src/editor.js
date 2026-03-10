@@ -235,6 +235,86 @@ const cmBlueKidsTheme = EditorView.theme({
   '.cm-panel .cm-panel-close': { float: 'right', cursor: 'pointer' },
 }, { dark: false });
 
+const cmPurpleTheme = EditorView.theme({
+  '&': { height: '100%', background: '#1a0a2e', color: '#e1d5f7' },
+  '.cm-content': { caretColor: '#ce93d8', minHeight: '100%' },
+  '.cm-gutters': { background: '#2d1b4e', color: '#9c5fc0', border: 'none', borderRight: '1px solid #4a2070' },
+  '.cm-activeLineGutter': { background: '#3d2060' },
+  '.cm-activeLine': { background: '#2d1b4e' },
+  '.cm-selectionBackground, ::selection': { background: '#6a1b9a !important' },
+  '.cm-cursor': { borderLeftColor: '#ce93d8' },
+  '.cm-matchingBracket': { background: '#3d2060', color: '#e1d5f7 !important' },
+  '.cm-tooltip.cm-tooltip-autocomplete': { background: '#220d38', border: '1px solid #4a2070', color: '#e1d5f7' },
+  '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': { background: '#6a1b9a', color: '#fff' },
+  '.cm-panel': { background: '#2d1b4e', borderTop: '1px solid #4a2070', color: '#e1d5f7', padding: '6px 10px' },
+  '.cm-panel input': { background: '#1a0a2e', border: '1px solid #7b2fbe', borderRadius: '3px', color: '#e1d5f7', padding: '2px 6px', outline: 'none', marginRight: '4px' },
+  '.cm-panel input:focus': { borderColor: '#ce93d8' },
+  '.cm-panel button': { background: '#3d2060', border: '1px solid #7b2fbe', borderRadius: '3px', color: '#e1d5f7', cursor: 'pointer', padding: '2px 8px', marginRight: '4px' },
+  '.cm-panel button:hover': { background: '#6a1b9a' },
+  '.cm-panel label': { color: '#ce93d8', marginRight: '8px', fontSize: '12px' },
+  '.cm-panel .cm-panel-close': { float: 'right', cursor: 'pointer' },
+}, { dark: true });
+
+const cmMagentaTheme = EditorView.theme({
+  '&': { height: '100%', background: '#1a0014', color: '#f5d0ff' },
+  '.cm-content': { caretColor: '#ea80fc', minHeight: '100%' },
+  '.cm-gutters': { background: '#2e0028', color: '#bf40ff', border: 'none', borderRight: '1px solid #5a0050' },
+  '.cm-activeLineGutter': { background: '#3d0040' },
+  '.cm-activeLine': { background: '#2e0028' },
+  '.cm-selectionBackground, ::selection': { background: '#7b00d4 !important' },
+  '.cm-cursor': { borderLeftColor: '#ea80fc' },
+  '.cm-matchingBracket': { background: '#3d0040', color: '#f5d0ff !important' },
+  '.cm-tooltip.cm-tooltip-autocomplete': { background: '#200018', border: '1px solid #5a0050', color: '#f5d0ff' },
+  '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': { background: '#7b00d4', color: '#fff' },
+  '.cm-panel': { background: '#2e0028', borderTop: '1px solid #5a0050', color: '#f5d0ff', padding: '6px 10px' },
+  '.cm-panel input': { background: '#1a0014', border: '1px solid #bf00ff', borderRadius: '3px', color: '#f5d0ff', padding: '2px 6px', outline: 'none', marginRight: '4px' },
+  '.cm-panel input:focus': { borderColor: '#ea80fc' },
+  '.cm-panel button': { background: '#3d0040', border: '1px solid #bf00ff', borderRadius: '3px', color: '#f5d0ff', cursor: 'pointer', padding: '2px 8px', marginRight: '4px' },
+  '.cm-panel button:hover': { background: '#7b00d4' },
+  '.cm-panel label': { color: '#ea80fc', marginRight: '8px', fontSize: '12px' },
+  '.cm-panel .cm-panel-close': { float: 'right', cursor: 'pointer' },
+}, { dark: true });
+
+const cmFuchsiaTheme = EditorView.theme({
+  '&': { height: '100%', background: '#0f001a', color: '#ffd6ec' },
+  '.cm-content': { caretColor: '#ff80ab', minHeight: '100%' },
+  '.cm-gutters': { background: '#220030', color: '#ff4081', border: 'none', borderRight: '1px solid #500040' },
+  '.cm-activeLineGutter': { background: '#2e0040' },
+  '.cm-activeLine': { background: '#220030' },
+  '.cm-selectionBackground, ::selection': { background: '#880e4f !important' },
+  '.cm-cursor': { borderLeftColor: '#ff80ab' },
+  '.cm-matchingBracket': { background: '#2e0040', color: '#ffd6ec !important' },
+  '.cm-tooltip.cm-tooltip-autocomplete': { background: '#140020', border: '1px solid #500040', color: '#ffd6ec' },
+  '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': { background: '#880e4f', color: '#fff' },
+  '.cm-panel': { background: '#220030', borderTop: '1px solid #500040', color: '#ffd6ec', padding: '6px 10px' },
+  '.cm-panel input': { background: '#0f001a', border: '1px solid #f50057', borderRadius: '3px', color: '#ffd6ec', padding: '2px 6px', outline: 'none', marginRight: '4px' },
+  '.cm-panel input:focus': { borderColor: '#ff80ab' },
+  '.cm-panel button': { background: '#2e0040', border: '1px solid #f50057', borderRadius: '3px', color: '#ffd6ec', cursor: 'pointer', padding: '2px 8px', marginRight: '4px' },
+  '.cm-panel button:hover': { background: '#880e4f' },
+  '.cm-panel label': { color: '#ff80ab', marginRight: '8px', fontSize: '12px' },
+  '.cm-panel .cm-panel-close': { float: 'right', cursor: 'pointer' },
+}, { dark: true });
+
+const cmCyanTheme = EditorView.theme({
+  '&': { height: '100%', background: '#001a1a', color: '#b2f0f0' },
+  '.cm-content': { caretColor: '#4dd0e1', minHeight: '100%' },
+  '.cm-gutters': { background: '#002b2b', color: '#00acc1', border: 'none', borderRight: '1px solid #005050' },
+  '.cm-activeLineGutter': { background: '#003838' },
+  '.cm-activeLine': { background: '#002b2b' },
+  '.cm-selectionBackground, ::selection': { background: '#006064 !important' },
+  '.cm-cursor': { borderLeftColor: '#4dd0e1' },
+  '.cm-matchingBracket': { background: '#003838', color: '#b2f0f0 !important' },
+  '.cm-tooltip.cm-tooltip-autocomplete': { background: '#002020', border: '1px solid #005050', color: '#b2f0f0' },
+  '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': { background: '#006064', color: '#fff' },
+  '.cm-panel': { background: '#002b2b', borderTop: '1px solid #005050', color: '#b2f0f0', padding: '6px 10px' },
+  '.cm-panel input': { background: '#001a1a', border: '1px solid #00bcd4', borderRadius: '3px', color: '#b2f0f0', padding: '2px 6px', outline: 'none', marginRight: '4px' },
+  '.cm-panel input:focus': { borderColor: '#4dd0e1' },
+  '.cm-panel button': { background: '#003838', border: '1px solid #00bcd4', borderRadius: '3px', color: '#b2f0f0', cursor: 'pointer', padding: '2px 8px', marginRight: '4px' },
+  '.cm-panel button:hover': { background: '#006064' },
+  '.cm-panel label': { color: '#4dd0e1', marginRight: '8px', fontSize: '12px' },
+  '.cm-panel .cm-panel-close': { float: 'right', cursor: 'pointer' },
+}, { dark: true });
+
 // ── Tema haritası: CSS body class → CodeMirror extension listesi ─────────────
 const CM_THEMES = {
   '':          [oneDark, melpTheme],
@@ -245,6 +325,10 @@ const CM_THEMES = {
   'solarized': [oneDark, cmSolarizedTheme],
   'pink':      [syntaxHighlighting(defaultHighlightStyle), cmPinkTheme],
   'blue-kids': [syntaxHighlighting(defaultHighlightStyle), cmBlueKidsTheme],
+  'purple':    [oneDark, cmPurpleTheme],
+  'magenta':   [oneDark, cmMagentaTheme],
+  'fuchsia':   [oneDark, cmFuchsiaTheme],
+  'cyan':      [oneDark, cmCyanTheme],
 };
 
 // ── Dinamik compartment'lar ──────────────────────────────────────────────────
