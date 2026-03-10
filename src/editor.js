@@ -253,7 +253,7 @@ const cmPurpleTheme = EditorView.theme({
   '.cm-panel button:hover': { background: '#6a1b9a' },
   '.cm-panel label': { color: '#ce93d8', marginRight: '8px', fontSize: '12px' },
   '.cm-panel .cm-panel-close': { float: 'right', cursor: 'pointer' },
-}, { dark: true });
+});
 
 const cmMagentaTheme = EditorView.theme({
   '&': { height: '100%', background: '#1a0014', color: '#f5d0ff' },
@@ -273,7 +273,7 @@ const cmMagentaTheme = EditorView.theme({
   '.cm-panel button:hover': { background: '#7b00d4' },
   '.cm-panel label': { color: '#ea80fc', marginRight: '8px', fontSize: '12px' },
   '.cm-panel .cm-panel-close': { float: 'right', cursor: 'pointer' },
-}, { dark: true });
+});
 
 const cmFuchsiaTheme = EditorView.theme({
   '&': { height: '100%', background: '#0f001a', color: '#ffd6ec' },
@@ -293,7 +293,7 @@ const cmFuchsiaTheme = EditorView.theme({
   '.cm-panel button:hover': { background: '#880e4f' },
   '.cm-panel label': { color: '#ff80ab', marginRight: '8px', fontSize: '12px' },
   '.cm-panel .cm-panel-close': { float: 'right', cursor: 'pointer' },
-}, { dark: true });
+});
 
 const cmCyanTheme = EditorView.theme({
   '&': { height: '100%', background: '#001a1a', color: '#b2f0f0' },
@@ -313,7 +313,7 @@ const cmCyanTheme = EditorView.theme({
   '.cm-panel button:hover': { background: '#006064' },
   '.cm-panel label': { color: '#4dd0e1', marginRight: '8px', fontSize: '12px' },
   '.cm-panel .cm-panel-close': { float: 'right', cursor: 'pointer' },
-}, { dark: true });
+});
 
 // ── Tema haritası: CSS body class → CodeMirror extension listesi ─────────────
 const CM_THEMES = {
